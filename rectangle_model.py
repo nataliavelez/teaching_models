@@ -11,6 +11,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from make_df import make_df_from_spreadsheet
+filename = 'teaching_stimuli - all_examples.csv'
+all_problems = make_df_from_spreadsheet(filename)
 
 def find_problem(index, all_problems):
     '''Return flat and non flat representations of a specific problem'''
@@ -30,7 +33,7 @@ def plot_problem(problem):
                          linewidths=2, linecolor='#808080')
         ax_i.set(xticks=[], yticks=[], title=opt_labels[idx]) 
         
-#%% k = 1
+# k = 1
 
 def get_pos_idx(concept):
     pos_coords = np.nonzero(concept)
@@ -50,9 +53,10 @@ def find_pos_ex_indices(h_flat):
         d_possible[ex] = get_pos_idx(h_flat[ex])
     return d_possible
 
-def make_df_iteration_zero(d_possible):
+def make_df_iteration_zero(d_possible, h_flat):
+    h_flat = h_flat
     df_0 = pd.DataFrame(index=[i for i in range(h_flat[0].size)], columns=[i for i in range(h_flat.size)])
-
+ 
     for k, v in d_possible.items(): 
         for i in v:
             df_0.loc[i, k] = 1
@@ -94,7 +98,7 @@ def find_teacher_probs_k1(n_iter, prob_idx, all_problems):
     '''given iteration number, index of problem, and df of all problems, return P(d|h) and P(h|d) after n interations for k=1'''
     _, h_flat = find_problem(prob_idx, all_problems)
     d_possible = find_pos_ex_indices(h_flat)
-    df_0 = make_df_iteration_zero(d_possible)
+    df_0 = make_df_iteration_zero(d_possible, h_flat)
     df_d, df_h = find_teacher_probabilities_given_iter_0(n_iter, df_0)
     return df_d.fillna(0), df_h.fillna(0)
 
@@ -135,7 +139,7 @@ def make_prob_heatmap_k1(df):
     probs = np.array([df[i].fillna(0).to_numpy().reshape(6,6) for i in df.columns])
     return probs
 
-#%% Cases of k > 1
+# Cases of k > 1
 
 def make_empty_df_2ex():
     indices = []
