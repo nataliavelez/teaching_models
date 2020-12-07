@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-
+from scipy.stats import entropy
 
 def find_problem(index, all_problems):
     """Return flat and non flat representations of a specific problem"""
@@ -475,7 +475,7 @@ def plot_pragmatic_literal_successive_probs_with_entropy(problem, exs, problem_i
     s_0 = [entropy(p_h_0[i].to_numpy()) for i in range(len(p_h_0))]
     s_500 = [entropy(p_h_500[i].to_numpy()) for i in range(len(p_h_500))]
 
-    plt.figure(figsize=(8,6))
+    plt.figure(figsize=(8, 6))
 
     plt.plot(n_ex, p_h1_0, 'b--', label='Literal')
     plt.plot(n_ex, p_h1_500, 'b', label='Pragmatic')
@@ -512,7 +512,7 @@ def plot_pragmatic_literal_successive_probs(problem, exs, problem_index):
             problem[500][2]['h'].loc[exs[1], 'h_1'],
             problem[500][3]['h'].loc[exs[2], 'h_1']]
 
-    n_ex = range(1,4)
+    n_ex = range(1, 4)
 
     plt.plot(n_ex, p_h_0, label='Literal')
     plt.plot(n_ex, p_h_500, label='Pragmatic')
