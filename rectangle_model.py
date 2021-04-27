@@ -189,6 +189,18 @@ def make_empty_df_3ex():
     df_3ex = pd.DataFrame(columns=['h_1', 'h_2', 'h_3', 'h_4'], index=indices)
     return df_3ex
 
+def make_empty_df_4ex():
+    indices = []
+    for i in range(36):
+        for j in range(i+1, 36):
+            for k in range(j+1, 36):
+                for l in range(k+1, 36):
+                    indices.append((i, j, k, l))
+
+    indices = pd.MultiIndex.from_tuples(indices, names=('i_1', 'i_2', 'i_3', 'i_4'))
+    df_3ex = pd.DataFrame(columns=['h_1', 'h_2', 'h_3', 'h_4'], index=indices)
+    return df_3ex
+
 
 def make_d_possible_with_column_labels(h_flat):
     """Find possible indices, but keys are labels h_i instead"""
@@ -300,6 +312,23 @@ def fill_df_3ex(h_flat):
 
     return df_3ex, df_3ex_short
 
+def fill_df_4ex(h_flat):
+    '''Fill df with initial probabilities for k=3'''
+    df_4ex = make_empty_df_4ex()
+    new_d_possible = make_d_possible_with_column_labels(h_flat)
+
+    for column in df_4ex.columns:
+        for i, j, k, l in df_4ex.index:
+            if i in new_d_possible[column] and j in new_d_possible[column] and k in new_d_possible[column] and l in new_d_possible[column]:
+                df_4ex.loc[(i, j, k, l), column] = 1
+
+    df_4ex_short = df_4ex.dropna(how='all')
+
+    df_4ex = normalize_probs_and_fill_nans(df_4ex)
+    df_4ex_short = normalize_probs_and_fill_nans(df_4ex_short)
+
+    return df_4ex, df_4ex_short
+
 
 def find_teacher_probs_k3(n_iter, prob_idx, all_problems):
     """
@@ -323,6 +352,27 @@ def find_teacher_probs_k3(n_iter, prob_idx, all_problems):
 
     return df_d, df_h
 
+def find_teacher_probs_k4(n_iter, prob_idx, all_problems):
+    """
+    Return P(d|h) and P(h|d) after n interations for k=4
+
+    Args:
+        n_iter (int): number of iterations
+        prob_idx (str): index of problem
+        all_problems (DataFrame): df of all problems
+
+    Returns:
+        df_d (DataFrame): P(d|h) after n_iter
+        df_h (DataFrame): P(h|d) after n_iter
+    """
+    _, h_flat = find_problem(prob_idx, all_problems)
+    df_0, _ = fill_df_4ex(h_flat)
+    df_d, df_h = find_teacher_probabilities_given_iter_0(n_iter, df_0)
+
+    df_d = df_d.fillna(0)
+    df_h = df_h.fillna(0)
+
+    return df_d, df_h
 
 def make_prob_heatmap_k3(df):
     probs = np.array([np.zeros((6, 6)) for column in df.columns])
