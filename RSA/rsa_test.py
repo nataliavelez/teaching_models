@@ -92,7 +92,7 @@ plt.xticks([1, 2, 3, 4])
 #plt.yticks([0.000390, 0.00041, 0.000430])
 plt.xlabel('Number of examples given')
 plt.ylabel('Probability')
-plt.title('Problem 65, $p(d|h_1)$, probability of individual sets of examples')
+plt.title('Problem 63, $p(d|h_1)$, probability of individual sets of examples')
 
 #%%
 # sum up all the probs of providing 2 examples, 3 examples, 4 examples
@@ -115,7 +115,7 @@ def plot_utterance_probs(alpha, beta, df_65):
     plt.xlabel('Number of examples given')
     plt.ylabel('Probability')
     plt.ylim([0, 1])
-    plt.title(rf'Problem 65, probability of utterance lengths, $\alpha={alpha}$, $\beta={beta}$')
+    plt.title(rf'Problem 63, probability of utterance lengths, $\alpha={alpha}$, $\beta={beta}$')
 
 #%%
 
@@ -131,16 +131,3 @@ plot_utterance_probs(10, .5, df_65)
 plot_utterance_probs(10, .8, df_65)
 
 #%%
-
-my_sum = 27+14+9+29
-w1 = 27/my_sum
-w2 = 14/my_sum
-w3 = 9/my_sum
-w4 = 29/my_sum
-
-x1 =  np.array([[1, 5]]).T
-x2 =  np.array([[2, 2]]).T
-x3 =  np.array([[2, 1]]).T
-x4 =  np.array([[2, 5]]).T
-
-print(w1*x1 + w2*x2 + w3*x3 + w4*x4)
