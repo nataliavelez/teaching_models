@@ -72,12 +72,15 @@ def kl(a, b):
 
 
 def R(a):
-    "same reward function for each"
+    """same reward function for each"""
     return np.log(a)
 
 
 def C1(idx, df, beta1):
-    "imposes an extremely high cost when examples are redundant, basically forcing you to stop teaching"
+    """imposes an extremely high cost when examples are redundant, basically forcing you to stop teaching
+    maybe scale this later....
+    """
+
     divs = []
 
     if len(idx) == 1:  # Case of only 1 example: zero cost
@@ -106,8 +109,60 @@ def C1(idx, df, beta1):
                 div = kl(a, b)
                 divs.append(div)
 
-    return beta1*min(divs)**(-1)
+    return beta1*min(divs)**(-1) if np.abs(beta1*min(divs)**(-1)) < 50 else 50
 
-def C2(a, beta2):
-    "linear cost"
-    return beta2*len(a)
+def C2(df, beta2):
+    """linear cost"""
+    return beta2*df.index.str.len()
+
+#%% make dfs with utility
+
+# Literal learner
+
+df_lit['R'] = R(df_lit['h_1'])
+
+for idx in df_lit.index:
+    df_lit.loc[[idx], 'C1'] = C1(idx, df_lit, beta1=1)
+
+df_lit['C2'] = C2(df_lit, beta2=1)
+
+df_lit['U1'] = df_lit['R'] - df_lit['C1']
+df_lit['U2'] = df_lit['R'] - df_lit['C2']
+
+# Pragmatic learner
+
+df_lit['R'] = R(df_prag['h_1'])
+
+for idx in df_prag.index:
+    df_prag.loc[[idx], 'C1'] = C1(idx, df_prag, beta1=1)
+
+df_lit['C2'] = C2(df_prag, beta2=1)
+
+df_prag['U1'] = df_prag['R'] - df_prag['C1']
+df_prag['U2'] = df_prag['R'] - df_prag['C2']
+
+#%% simulate!
+
+# after selecting an example, make a sub dataframe with all the next possibilities. this will include utilities, then softmax
+# want to store all before choices in a mtx
+
+from numpy.random import rng
+rng = default_rng()
+
+alpha = 1
+
+choices = []
+all_indices = df_lit.index
+
+# Add a staying option where cost is 0 and reward retains thte reward of the prev option
+
+start = df_lit[df_lit.index.str.len() == 1]
+start['prob'] = softmax(alpha * start['U'])
+
+choice1 = rng.choice(start.index, 1, p = start['prob'])
+choices.append(choice1)
+
+choices2 = next_steps(choice1, all_indices)
+sub_df_1 = df_lit.filter(items = choices2, axis=0)
+
+sub_df_1['prob'] = softmax(alpha * sub_df_1['U'])

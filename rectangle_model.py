@@ -210,7 +210,7 @@ def make_empty_df_5ex():
                     for m in range(l+1, 36):
                         indices.append((i, j, k, l, m))
 
-    indices = pd.MultiIndex.from_tuples(indices, names=('i_1', 'i_2', 'i_3', 'i_4'))
+    indices = pd.MultiIndex.from_tuples(indices, names=('i_1', 'i_2', 'i_3', 'i_4', 'i_5'))
     df_3ex = pd.DataFrame(columns=['h_1', 'h_2', 'h_3', 'h_4'], index=indices)
     return df_3ex
 
@@ -224,7 +224,7 @@ def make_empty_df_6ex():
                         for n in range(m+1, 36):
                             indices.append((i, j, k, l, m, n))
 
-    indices = pd.MultiIndex.from_tuples(indices, names=('i_1', 'i_2', 'i_3', 'i_4'))
+    indices = pd.MultiIndex.from_tuples(indices, names=('i_1', 'i_2', 'i_3', 'i_4', 'i_5', 'i_6'))
     df_3ex = pd.DataFrame(columns=['h_1', 'h_2', 'h_3', 'h_4'], index=indices)
     return df_3ex
 
@@ -555,12 +555,15 @@ def find_teacher_probs(n_iter, prob_idx, all_problems):
     my_dict['n_iter'] = n_iter
     my_dict['problem_index'] = prob_idx
 
-    for k in range(1, 4):
+    for k in range(1, 7):
         my_dict[k] = {}
 
     my_dict[1]['d'], my_dict[1]['h'] = find_teacher_probs_k1(n_iter, prob_idx, all_problems)
     my_dict[2]['d'], my_dict[2]['h'] = find_teacher_probs_k2(n_iter, prob_idx, all_problems)
     my_dict[3]['d'], my_dict[3]['h'] = find_teacher_probs_k3(n_iter, prob_idx, all_problems)
+    my_dict[4]['d'], my_dict[4]['h'] = find_teacher_probs_k4(n_iter, prob_idx, all_problems)
+    my_dict[5]['d'], my_dict[5]['h'] = find_teacher_probs_k5(n_iter, prob_idx, all_problems)
+    my_dict[6]['d'], my_dict[6]['h'] = find_teacher_probs_k6(n_iter, prob_idx, all_problems)
 
     return my_dict
 
