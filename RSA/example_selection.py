@@ -10,15 +10,22 @@ import numpy as np
 import pandas as pd
 from rectangle_model import *
 from make_df import *
+import seaborn as sns
+
+import warnings
+warnings.filterwarnings('ignore')
 
 filename = 'teaching_stimuli - all_examples (7).csv'
 all_problems = make_df_from_spreadsheet(filename)
 
 #%%
 
-df_500 = find_teacher_probs(500, 63, all_problems)
-df_0 = find_teacher_probs(0, 63, all_problems)
+df_500 = find_teacher_probs(500, 65, all_problems)
+df_0 = find_teacher_probs(0, 65, all_problems)
 
+#%%
+
+plot_problem(find_problem(65, all_problems)[0])
 #%%
 
 def posterior_probs(df):
@@ -121,24 +128,24 @@ def C2(df, beta2):
 
 df_lit['R'] = R(df_lit['h_1'])
 
-for idx in df_lit.index:
-    df_lit.loc[[idx], 'C1'] = C1(idx, df_lit, beta1=1)
+# for idx in df_lit.index:
+#     df_lit.loc[[idx], 'C1'] = C1(idx, df_lit, beta1=1)
 
 df_lit['C2'] = C2(df_lit, beta2=1)
 
-df_lit['U1'] = df_lit['R'] - df_lit['C1']
+# df_lit['U1'] = df_lit['R'] - df_lit['C1']
 df_lit['U2'] = df_lit['R'] - df_lit['C2']
 
 # Pragmatic learner
 
-df_lit['R'] = R(df_prag['h_1'])
+df_prag['R'] = R(df_prag['h_1'])
 
-for idx in df_prag.index:
-    df_prag.loc[[idx], 'C1'] = C1(idx, df_prag, beta1=1)
+# for idx in df_prag.index:
+#     df_prag.loc[[idx], 'C1'] = C1(idx, df_prag, beta1=1)
 
-df_lit['C2'] = C2(df_prag, beta2=1)
+df_prag['C2'] = C2(df_prag, beta2=1)
 
-df_prag['U1'] = df_prag['R'] - df_prag['C1']
+# df_prag['U1'] = df_prag['R'] - df_prag['C1']
 df_prag['U2'] = df_prag['R'] - df_prag['C2']
 
 #%% simulate!
@@ -146,23 +153,96 @@ df_prag['U2'] = df_prag['R'] - df_prag['C2']
 # after selecting an example, make a sub dataframe with all the next possibilities. this will include utilities, then softmax
 # want to store all before choices in a mtx
 
-from numpy.random import rng
-rng = default_rng()
+rng = np.random.default_rng()
 
-alpha = 1
+def make_choices(df, alpha):
+    alpha = alpha
 
-choices = []
-all_indices = df_lit.index
+    choices = []
+    all_indices = df.index
 
-# Add a staying option where cost is 0 and reward retains thte reward of the prev option
+    # Add a staying option where cost is 0 and reward retains thte reward of the prev option
 
-start = df_lit[df_lit.index.str.len() == 1]
-start['prob'] = softmax(alpha * start['U'])
+    start = df[df.index.str.len() == 1]
+    start['prob'] = softmax(alpha * start['U2'])
 
-choice1 = rng.choice(start.index, 1, p = start['prob'])
-choices.append(choice1)
+    choice1 = rng.choice(start.index.tolist(), 1, p = start['prob'])
+    choice1 = tuple(choice1.flatten()) # probably not ideal... annoying cause rng outputs a numpy array
+    choices.append(choice1)
 
-choices2 = next_steps(choice1, all_indices)
-sub_df_1 = df_lit.filter(items = choices2, axis=0)
+    for i in range(6):
 
-sub_df_1['prob'] = softmax(alpha * sub_df_1['U'])
+        choices2 = next_steps(choice1, all_indices)
+        sub_df_1 = df.filter(items = choices2, axis=0)
+        sub_df_1.loc['term', 'U2'] = df.loc[[choice1], 'R'].values # add staying option
+
+        sub_df_1['prob'] = softmax(alpha * sub_df_1['U2'])
+
+        choice2 = rng.choice(sub_df_1.index.tolist(), 1, p = sub_df_1['prob'])
+        choice2 = choice2[0]
+
+        if choice2 == 'term':
+            break
+
+        #choice2 = tuple(choice2.flatten())
+        choices.append(choice2)
+        choice1 = choice2
+
+    return choices
+
+#%%
+
+
+print(make_choices(df_lit, alpha=1))
+print(make_choices(df_prag, alpha=1))
+
+#%% Plots
+
+# Avg length of utterance until termination, for lit and prag learners
+
+B = 1000
+
+lit_lengths = []
+prag_lengths = []
+
+for i in range(B):
+
+    lc = make_choices(df_lit, alpha=1)
+    pc = make_choices(df_prag, alpha=1)
+
+    lit_lengths.append(len(lc))
+    prag_lengths.append(len(pc))
+
+
+
+
+
+plt.figure()
+plt.hist(lit_lengths)
+plt.title('Literal learner, avg utterance length')
+
+plt.figure()
+plt.hist(prag_lengths)
+plt.title('Pragmatic learner, avg utterance length')
+
+# Termination probabilities for literal and pragmatic learner at each step
+
+# Can we recover mean and variance parameters, as well as ground truth probabilities?
+
+ll = np.array([lit_lengths])
+pl = np.array([prag_lengths])
+
+stop_probs_lit = []
+stop_probs_prag = []
+
+for i in range(1, 6):
+    split = np.sum(ll == i) / np.sum(ll >= i)
+    spprag = np.sum(pl == i) / np.sum(pl >= i)
+    stop_probs_lit.append(split)
+    stop_probs_prag.append(spprag)
+
+plt.figure()
+plt.plot(range(1, 6), stop_probs_lit, label='lit learner stop prob')
+plt.xticks(range(1, 6))
+plt.plot(range(1, 6), stop_probs_prag, label='prag learner stop prob')
+plt.legend()
