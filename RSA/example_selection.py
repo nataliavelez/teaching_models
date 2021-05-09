@@ -20,8 +20,8 @@ all_problems = make_df_from_spreadsheet(filename)
 
 #%%
 
-df_500 = find_teacher_probs(500, 65, all_problems)
-df_0 = find_teacher_probs(0, 65, all_problems)
+df_500 = find_teacher_probs(500, 63, all_problems)
+df_0 = find_teacher_probs(0, 63, all_problems)
 
 #%%
 
@@ -198,32 +198,40 @@ print(make_choices(df_prag, alpha=1))
 
 #%% Plots
 
+sns.set()
+
 # Avg length of utterance until termination, for lit and prag learners
 
 B = 1000
+
 
 lit_lengths = []
 prag_lengths = []
 
 for i in range(B):
 
-    lc = make_choices(df_lit, alpha=1)
-    pc = make_choices(df_prag, alpha=1)
+    lc = make_choices(df_lit, alpha=.8)
+    pc = make_choices(df_prag, alpha=.8)
 
     lit_lengths.append(len(lc))
     prag_lengths.append(len(pc))
 
 
 
-
-
-plt.figure()
-plt.hist(lit_lengths)
-plt.title('Literal learner, avg utterance length')
+df_lengths = pd.DataFrame(data = {'Literal': lit_lengths, 'Pragmatic': prag_lengths}).melt(var_name="Type", value_name="Length")
+df_lengths = df_lengths[['Length', 'Type']]
 
 plt.figure()
-plt.hist(prag_lengths)
-plt.title('Pragmatic learner, avg utterance length')
+sns.histplot(data=df_lengths, x='Length', hue="Type", binwidth=1, discrete=True, stat="probability", shrink=0.8, multiple="dodge")
+plt.title("Utterance lengths")
+
+# plt.figure()
+# plt.hist(lit_lengths)
+# plt.title('Literal learner, avg utterance length')
+
+# plt.figure()
+# plt.hist(prag_lengths)
+# plt.title('Pragmatic learner, avg utterance length')
 
 # Termination probabilities for literal and pragmatic learner at each step
 
@@ -242,7 +250,87 @@ for i in range(1, 6):
     stop_probs_prag.append(spprag)
 
 plt.figure()
-plt.plot(range(1, 6), stop_probs_lit, label='lit learner stop prob')
+plt.plot(range(1, 6), stop_probs_lit, label='Literal')
 plt.xticks(range(1, 6))
-plt.plot(range(1, 6), stop_probs_prag, label='prag learner stop prob')
+plt.plot(range(1, 6), stop_probs_prag, label='Pragmatic')
+plt.title("Stopping probabilities after # examples given")
+plt.xlabel("Number of examples")
+plt.ylabel("Probability")
+plt.ylim((0, 1.1))
+plt.legend()
+
+#%% Plots of utterance probs (w/o simulating, just summing up)
+
+def plot_utterance_probs(df, alpha, beta=1):
+
+    df['prob'] = softmax(alpha*df['U2'])
+
+    sums = [
+            df.loc[[len(i) == 1 for i in df.index]]['prob'].sum(),
+            df.loc[[len(i) == 2 for i in df.index]]['prob'].sum(),
+            df.loc[[len(i) == 3 for i in df.index]]['prob'].sum(),
+            df.loc[[len(i) == 4 for i in df.index]]['prob'].sum(),
+            df.loc[[len(i) == 5 for i in df.index]]['prob'].sum(),
+            df.loc[[len(i) == 6 for i in df.index]]['prob'].sum()
+            ]
+
+
+    plt.figure()
+    plt.scatter([1, 2, 3, 4, 5, 6], sums)
+    plt.xticks([1, 2, 3, 4, 5, 6])
+    plt.xlabel('Number of examples given')
+    plt.ylabel('Probability')
+    plt.ylim([0, 1])
+    plt.title(rf'Problem 63, probability of utterance lengths, $\alpha={alpha}$, $\beta={beta}$')
+
+#%%
+
+plot_utterance_probs(df_lit, alpha=1)
+plot_utterance_probs(df_prag, alpha=1)
+
+#%%
+
+
+B = 500
+alphas = [0.3, 0.6, 0.9, 1.2, 1.5, 1.8, 2.1]
+
+litmeans = {}
+pragmeans = {}
+litvar = {}
+pragvar = {}
+
+for alpha in alphas:
+    lit_lengths = []
+    prag_lengths = []
+
+    for i in range(B):
+
+        lc = make_choices(df_lit, alpha=alpha)
+        pc = make_choices(df_prag, alpha=alpha)
+
+        lit_lengths.append(len(lc))
+        prag_lengths.append(len(pc))
+
+    litmeans[alpha] = np.mean(lit_lengths)
+    pragmeans[alpha] = np.mean(prag_lengths)
+
+    litvar[alpha] = np.var(lit_lengths)
+    pragvar[alpha] = np.var(prag_lengths)
+
+#%%
+
+plt.figure()
+plt.plot(*zip(*litmeans.items()), label="Literal")
+plt.plot(*zip(*pragmeans.items()), label="Pragmatic")
+plt.title(r"Effect of $\alpha$ on avg utterance length")
+plt.xlabel(r"$\alpha$ (inverse temperature)")
+plt.ylabel("Number of examples")
+plt.legend()
+
+plt.figure()
+plt.plot(*zip(*litvar.items()), label="Literal")
+plt.plot(*zip(*pragvar.items()), label="Pragmatic")
+plt.title(r"Effect of $\alpha$ on variance of avg utterance length")
+plt.xlabel(r"$\alpha$ (inverse temperature)")
+plt.ylabel("variance")
 plt.legend()
