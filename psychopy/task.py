@@ -60,22 +60,81 @@ class Move(Canvas):
             self.cursor_loc[1] = y
 #%%
 
-# TODO: add psychopy input w key presses, etc.
+win = visual.Window([800, 600], monitor="testMonitor", units="norm")
+trial = Move()
 
-# TODO: highlight cursor_loc
+# TODO: make 36 blank rectangles with their positions
 
-# TODO: save key presses
+# make a d1ictionary like the previous one, but have each of them be an instance of visual.Rect
 
-thisResp = None
-while thisResp == None:
+
+xlocs = [-.5, -.3, -.1, .1, .3, .5]
+ylocs = xlocs.copy()
+
+rects = {}
+for i in range(6):
+    rects[i] = {}
+    for j in range(6):
+        rects[i][j] =  visual.Rect(win=win,
+                       fillColor='black',
+                       pos=(xlocs[i], ylocs[j]),
+                       units='norm',
+                       size=.1)
+
+# testrect = visual.Rect(win=win,
+#                        fillColor='black', pos=(-.6, -.6),
+#     #pos=(1/(trial.cursor_loc[0]+1), 1/(trial.cursor_loc[1]+1)), # avoid division by zero
+#     units='norm',
+#     size=.1
+#     )
+
+while True:
+    for i in range(6):
+        for j in range(6):
+            rects[i][j].draw()
+
+    win.flip()
+
+    if len(event.getKeys()) > 0:
+         break
+    event.clearEvents()
+
+#win.flip()
+
+win.close()
+core.quit()
+
+## TODO: find way to somehow tie 0-5 coordinates to the way coordinates are plotted in psychopy
+
+#######
+
+# TODO: highlight pressed stuff on canvas, adn dont refresh this every time you move
+
+# TODO: highlight cursor_loc, but have this refresh everytime you move
+
+# TODO: save all key presses (check how??)
+
+
+#%% for each trial:
+
+
+while True:
+
     allKeys=event.waitKeys()
+    allowed_keys = ['left', 'right', 'up', 'down', 'enter', 'q']
     for thisKey in allKeys:
-        if thisKey=='left':
-            if targetSide==-1: thisResp = 1  # correct
-            else: thisResp = -1              # incorrect
-        elif thisKey=='right':
-            if targetSide== 1: thisResp = 1  # correct
-            else: thisResp = -1              # incorrect
-        elif thisKey in ['q', 'escape']:
-            core.quit()  # abort experiment
-    event.clearEvents()  # clear other (eg mouse) events - they clog the buffe
+        if thisKey == 'left':
+            trial.left()
+        elif thisKey == 'right':
+            trial.right()
+        elif thisKey == 'up':
+            trial.up()
+        elif thisKey == 'down':
+            trial.down()
+        elif thisKey == 'enter':
+            trial.select()
+        elif thisKey == 'q':
+            win.close()
+            core.quit()
+
+    event.clearEvents()
