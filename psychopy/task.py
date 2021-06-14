@@ -60,68 +60,44 @@ class Move(Canvas):
             self.cursor_loc[1] = y
 #%%
 
-win = visual.Window([800, 600], monitor="testMonitor", units="norm")
-trial = Move()
-
-# TODO: make 36 blank rectangles with their positions
-
-# make a d1ictionary like the previous one, but have each of them be an instance of visual.Rect
-
-
-xlocs = [-.5, -.3, -.1, .1, .3, .5]
-ylocs = xlocs.copy()
-
-rects = {}
-for i in range(6):
-    rects[i] = {}
-    for j in range(6):
-        rects[i][j] =  visual.Rect(win=win,
-                       fillColor='black',
-                       pos=(xlocs[i], ylocs[j]),
-                       units='norm',
-                       size=.1)
-
-# testrect = visual.Rect(win=win,
-#                        fillColor='black', pos=(-.6, -.6),
-#     #pos=(1/(trial.cursor_loc[0]+1), 1/(trial.cursor_loc[1]+1)), # avoid division by zero
-#     units='norm',
-#     size=.1
-#     )
-
-while True:
-    for i in range(6):
-        for j in range(6):
-            rects[i][j].draw()
-
-    win.flip()
-
-    if len(event.getKeys()) > 0:
-         break
-    event.clearEvents()
-
-#win.flip()
-
-win.close()
-core.quit()
-
-## TODO: find way to somehow tie 0-5 coordinates to the way coordinates are plotted in psychopy
-
 #######
 
-# TODO: highlight pressed stuff on canvas, adn dont refresh this every time you move
-
-# TODO: highlight cursor_loc, but have this refresh everytime you move
+# TODO: import four problems and draw / highlight true hypothesis
 
 # TODO: save all key presses (check how??)
 
 
 #%% for each trial:
 
+xlocs = [-.5, -.3, -.1, .1, .3, .5]
+ylocs = xlocs.copy()
+win = visual.Window([800, 600], monitor="testMonitor", units="norm")
+trial = Move()
+
+rects = {}
+for i in range(6):
+    rects[i] = {}
+    for j in range(6):
+        rects[i][j] = visual.Rect(win=win,
+                       fillColor='black',
+                       pos=(xlocs[i], ylocs[j]),
+                       units='norm',
+                       size=.17)
 
 while True:
 
     allKeys=event.waitKeys()
     allowed_keys = ['left', 'right', 'up', 'down', 'enter', 'q']
+
+    for i in range(6):
+        for j in range(6):
+            rects[i][j].draw()
+
+    win.flip()
+
+    old_cursor_loc = trial.cursor_loc.copy()
+
+
     for thisKey in allKeys:
         if thisKey == 'left':
             trial.left()
@@ -131,10 +107,43 @@ while True:
             trial.up()
         elif thisKey == 'down':
             trial.down()
-        elif thisKey == 'enter':
+        elif thisKey == 'space':
             trial.select()
+
+            # Update canvas to make past selections blue
+            rects[trial.cursor_loc[0]][trial.cursor_loc[1]] = visual.Rect(win=win,
+                   fillColor='blue',
+                   pos=(xlocs[trial.cursor_loc[0]], ylocs[trial.cursor_loc[1]]),
+                   units='norm',
+                   size=.17)
+            break
         elif thisKey == 'q':
             win.close()
             core.quit()
 
+    print(old_cursor_loc)
+    print(trial.cursor_loc)
+
+    # Change current cursor location color
+    if thisKey != 'space':
+        try:
+            rects[old_cursor_loc[0]][old_cursor_loc[1]] = visual.Rect(win=win,
+                            fillColor='black',
+                            pos=(xlocs[old_cursor_loc[0]], ylocs[old_cursor_loc[1]]),
+                            units='norm',
+                            size=.17)
+
+
+            rects[trial.cursor_loc[0]][trial.cursor_loc[1]] = visual.Rect(win=win,
+                            fillColor='green',
+                            pos=(xlocs[trial.cursor_loc[0]], ylocs[trial.cursor_loc[1]]),
+                            units='norm',
+                            size=.17)
+        except IndexError:
+            print('index out of range')
+
+
+
     event.clearEvents()
+
+# TODO: save key presses
