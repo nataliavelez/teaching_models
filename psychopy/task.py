@@ -29,6 +29,9 @@ class Canvas:
         self.squares[self.cursor_loc[0]][self.cursor_loc[1]] = 1
         # TODO: add something where you can't select the negative examples
 
+    def unselect(self):
+        self.squares[self.cursor_loc[0]][self.cursor_loc[1]] = 0
+
 class Move(Canvas):
 
     def left(self):
@@ -66,6 +69,8 @@ class Move(Canvas):
 
 # TODO: save all key presses (check how??)
 
+# TODO: make it impossible to select ietms that
+
 
 #%% for each trial:
 
@@ -86,14 +91,9 @@ for i in range(6):
 
 while True:
 
-    allKeys=event.waitKeys()
+    allKeys = event.waitKeys()
     allowed_keys = ['left', 'right', 'up', 'down', 'enter', 'q']
 
-    for i in range(6):
-        for j in range(6):
-            rects[i][j].draw()
-
-    win.flip()
 
     old_cursor_loc = trial.cursor_loc.copy()
 
@@ -108,25 +108,34 @@ while True:
         elif thisKey == 'down':
             trial.down()
         elif thisKey == 'space':
-            trial.select()
+            if trial.squares[trial.cursor_loc[0]][trial.cursor_loc[1]] == 0:
+                trial.select()
 
-            # Update canvas to make past selections blue
-            rects[trial.cursor_loc[0]][trial.cursor_loc[1]] = visual.Rect(win=win,
+                rects[trial.cursor_loc[0]][trial.cursor_loc[1]] = visual.Rect(win=win,
                    fillColor='blue',
                    pos=(xlocs[trial.cursor_loc[0]], ylocs[trial.cursor_loc[1]]),
                    units='norm',
                    size=.17)
+            else:
+                trial.unselect()
+
+            # Update canvas to make past selections blue
+
+
+            # TODO: make it impossible to select negative examples (like display a message?)
             break
         elif thisKey == 'q':
             win.close()
             core.quit()
 
-    print(old_cursor_loc)
-    print(trial.cursor_loc)
+    print(allKeys)
+    #print(old_cursor_loc)
+    #print(trial.cursor_loc)
 
     # Change current cursor location color
     if thisKey != 'space':
         try:
+
             rects[old_cursor_loc[0]][old_cursor_loc[1]] = visual.Rect(win=win,
                             fillColor='black',
                             pos=(xlocs[old_cursor_loc[0]], ylocs[old_cursor_loc[1]]),
@@ -142,6 +151,23 @@ while True:
         except IndexError:
             print('index out of range')
 
+    # Pressed squares
+    for i in range(6):
+        for j in range(6):
+            if trial.squares[i][j] == 1:
+                rects[i][j] = visual.Rect(win=win,
+                            fillColor='blue',
+                            pos=(xlocs[i], ylocs[j]),
+                            units='norm',
+                            size=.17)
+
+    # TODO: should we make it possible to unprerss the squares if u accidentally pressed thte squares?
+
+    for i in range(6):
+            for j in range(6):
+                rects[i][j].draw()
+
+    win.flip()
 
 
     event.clearEvents()
