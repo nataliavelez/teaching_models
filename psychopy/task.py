@@ -249,12 +249,15 @@ while True:
         elif thisKey == 'down':
             trial.down()
         elif thisKey == 'space':
-            if trial.squares[trial.cursor_loc[0]][trial.cursor_loc[1]] == 0:
-                trial.select()
-                rects[trial.cursor_loc[0]][trial.cursor_loc[1]].fillColor='blue'
-
+            if test_prob['A'][trial.cursor_loc[0]][trial.cursor_loc[1]] == 0:
+                print('error :(')
             else:
-                trial.unselect()
+                if trial.squares[trial.cursor_loc[0]][trial.cursor_loc[1]] == 0:
+                    trial.select()
+                    rects[trial.cursor_loc[0]][trial.cursor_loc[1]].fillColor='blue'
+
+                else:
+                    trial.unselect()
 
             # Update canvas to make past selections blue
 
@@ -270,6 +273,8 @@ while True:
     #print(trial.cursor_loc)
 
     # Change current cursor location color
+
+    ## theres some sort of edge case error here..... fix later
     if thisKey != 'space':
 
         try:
