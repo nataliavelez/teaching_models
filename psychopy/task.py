@@ -7,6 +7,8 @@ Created on Mon Jun 14 08:46:01 2021
 """
 from psychopy import gui, core, visual, event, data
 import numpy as np
+import json
+import random
 
 class Canvas:
 
@@ -65,18 +67,137 @@ class Move(Canvas):
 
 #######
 
-# TODO: import four problems and draw / highlight true hypothesis
+## TODO: import four problems and draw / highlight true hypothesis
 
-# TODO: save all key presses (check how??)
+# TODO: import json file, loop tthru items and change to dict of dict of dicst
 
-# TODO: make it impossible to select ietms that
+f = open('/Users/aliciachen/Dropbox/teaching_models/problems.json')
+problems_raw = json.load(f)
+f.close()
 
+#%%
+
+
+# Import problems s.t. each value can be accessed by coordinates
+
+probs = {}
+
+for prob_idx, prob in enumerate(problems_raw):
+    probs[prob_idx] = {}
+    for h, val in prob.items():
+        probs[prob_idx][h] = {}
+        for row_idx, row in enumerate(val):
+            probs[prob_idx][h][row_idx] = {}
+            for col_idx, value in enumerate(row):
+                probs[prob_idx][h][row_idx][col_idx] = value
+
+
+#%% TODO: map to four images
+
+test_prob = probs[0]
+prob_idxs = list(test_prob.keys())
+
+random.shuffle(prob_idxs)
+test_prob_shuffled = {i: test_prob[i] for i in prob_idxs}
+
+true_h_idx = prob_idxs.index('A')
+
+h_1 = visual.ElementArrayStim(win=win,
+                              fieldSize=.17,
+                              fieldPos=(-.75, .5),
+                              fieldShape='sqr',
+                              nElements=36,
+                              elementMask=None,
+                              elementTex=None)
+
+
+# TODO: hilight true hypothesis. find idx that corresponds to A and make a square in that location
+
+#%% Place for testing stuff
+
+# array of coordinates for each element
+
+# Flatten problem to figure out colors; make color lists
+colordict = {}
+for h, val in test_prob_shuffled.items():
+    colordict[h] = []
+    for k, v in val.items():
+        for a, b in v.items():
+            colordict[h].append(b)
+
+# Convert from dict into np array to assign colors, thten back into listt of lists
+colorlist = []
+for k, v in colordict.items():
+        colorlist.append(v)
+
+newcolorlist = [[] for i in range(4)]
+for idx, h in enumerate(colorlist):
+    for val in h:
+        if val == 0:
+            newcolorlist[idx].append([30, 76, 124])
+        else:
+            newcolorlist[idx].append([72, 160, 248])
+
+
+locs = [[-.75, .5], [-.25, .5], [.25, .5], [.75, .5]]
+
+# populate xys
+sidelength = 6
+sq_size = .05
+
+
+hs = []
+win = visual.Window([800, 600], monitor="test", units="norm")
+
+# colors = np.random.random((36, 3))
+# colors = np.array([["#004D7F" for i in range(36)]], dtype='str').T
+#colors = [[30, 76, 124] for i in range(36)]
+
+#colors[7] = [72, 160, 248]
+
+
+for i, loc in enumerate(locs):
+
+    xys = []
+    x_low, x_high = loc[0] - 2.5*sq_size, loc[0] + 2.5*sq_size
+    y_low, y_high = loc[1] - 2.5*sq_size, loc[1] + 2.5*sq_size
+
+    xs = np.linspace(x_low, x_high, 6)
+    ys = np.linspace(y_low, y_high, 6)
+
+    for y in ys:
+        for x in xs:
+            xys.append((x, y))
+
+
+    hs.append(visual.ElementArrayStim(win=win,
+                                   xys=xys,
+                                   colors=newcolorlist[i],
+                                   colorSpace='rgb255',
+                                  fieldShape='sqr',
+                                  nElements=36,
+                                  elementMask=None,
+                                  elementTex=None,
+                                  sizes=(.03, .03)))
+
+
+
+for h in hs:
+    h.draw()
+
+win.flip()
+core.wait(5.0)
+win.close()
+core.quit()
+
+
+# TODO: can call setcolors to set colors
 
 #%% for each trial:
 
 xlocs = [-.5, -.3, -.1, .1, .3, .5]
 ylocs = xlocs.copy()
-win = visual.Window([800, 600], monitor="testMonitor", units="norm")
+win = visual.Window([800, 600], monitor="test", units="norm")
 trial = Move()
 
 rects = {}
@@ -172,4 +293,4 @@ while True:
 
     event.clearEvents()
 
-# TODO: save key presses
+# TODO: save all key presses
