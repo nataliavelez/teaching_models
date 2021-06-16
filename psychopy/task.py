@@ -217,6 +217,7 @@ for i in range(6):
     for j in range(6):
         rects[i][j] = visual.Rect(win=win,
                        fillColor='black',
+                       colorSpace='rgb255',
                        pos=(xlocs[i], ylocs[j]),
                        units='norm',
                        size=.17)
@@ -262,9 +263,12 @@ while True:
 
     # Change current cursor location color
     if thisKey != 'space':
+
         try:
+            rects[old_cursor_loc[0]][old_cursor_loc[1]].lineColor = 'none'
             rects[old_cursor_loc[0]][old_cursor_loc[1]].fillColor = 'black'
-            rects[trial.cursor_loc[0]][trial.cursor_loc[1]].fillColor='green'
+            rects[trial.cursor_loc[0]][trial.cursor_loc[1]].lineColor=(72, 160, 248)
+            rects[trial.cursor_loc[0]][trial.cursor_loc[1]].lineWidth=6
         except IndexError:
             print('index out of range')
 
@@ -272,7 +276,13 @@ while True:
     for i in range(6):
         for j in range(6):
             if trial.squares[i][j] == 1:
-                rects[i][j].fillColor = 'blue'
+                rects[i][j].fillColor = (72, 160, 248)
+                try:
+                    if trial.cursor_loc == [i, j]:
+                        rects[i][j].lineColor = (218, 60, 37)
+                        rects[i][j].lineWidth=6
+                except IndexError:
+                    print('index out of range')
 
     # TODO: should we make it possible to unprerss the squares if u accidentally pressed thte squares?
 
