@@ -181,9 +181,20 @@ for i, loc in enumerate(locs):
                                   sizes=(.03, .03)))
 
 
+# Highlight true hypothesis
+
+true_h_border = visual.Rect(win,
+                            size=5*sq_size + .05,
+                            lineWidth=3,
+                            lineColor=(238, 188, 64),
+                            colorSpace='rgb255',
+                            pos=(locs[true_h_idx][0], locs[true_h_idx][1]))
+
 
 for h in hs:
     h.draw()
+
+true_h_border.draw()
 
 win.flip()
 core.wait(5.0)
