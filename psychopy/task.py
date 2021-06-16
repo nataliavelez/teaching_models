@@ -102,13 +102,13 @@ test_prob_shuffled = {i: test_prob[i] for i in prob_idxs}
 
 true_h_idx = prob_idxs.index('A')
 
-h_1 = visual.ElementArrayStim(win=win,
-                              fieldSize=.17,
-                              fieldPos=(-.75, .5),
-                              fieldShape='sqr',
-                              nElements=36,
-                              elementMask=None,
-                              elementTex=None)
+# h_1 = visual.ElementArrayStim(win=win,
+#                               fieldSize=.17,
+#                               fieldPos=(-.75, .5),
+#                               fieldShape='sqr',
+#                               nElements=36,
+#                               elementMask=None,
+#                               elementTex=None)
 
 
 # TODO: hilight true hypothesis. find idx that corresponds to A and make a square in that location
@@ -208,15 +208,23 @@ core.quit()
 
 xlocs = [-.5, -.3, -.1, .1, .3, .5]
 ylocs = xlocs.copy()
-win = visual.Window([800, 600], monitor="test", units="norm")
+win = visual.Window([800, 600], monitor="test", units="norm", color='black')
 trial = Move()
 
 rects = {}
 for i in range(6):
     rects[i] = {}
     for j in range(6):
-        rects[i][j] = visual.Rect(win=win,
-                       fillColor='black',
+        if test_prob['A'][i][j] == 0:
+            rects[i][j] = visual.Rect(win=win,
+                       fillColor=(94, 93, 95), # dark gray
+                       colorSpace='rgb255',
+                       pos=(xlocs[i], ylocs[j]),
+                       units='norm',
+                       size=.17)
+        else:
+            rects[i][j] = visual.Rect(win=win,
+                       fillColor=(214, 214, 214),
                        colorSpace='rgb255',
                        pos=(xlocs[i], ylocs[j]),
                        units='norm',
@@ -266,25 +274,31 @@ while True:
 
         try:
             rects[old_cursor_loc[0]][old_cursor_loc[1]].lineColor = 'none'
-            rects[old_cursor_loc[0]][old_cursor_loc[1]].fillColor = 'black'
-            rects[trial.cursor_loc[0]][trial.cursor_loc[1]].lineColor=(72, 160, 248)
-            rects[trial.cursor_loc[0]][trial.cursor_loc[1]].lineWidth=6
+
+            if test_prob['A'][old_cursor_loc[0]][old_cursor_loc[1]] == 0:
+                rects[old_cursor_loc[0]][old_cursor_loc[1]].fillColor = (94, 93, 95) # dark gray
+            else:
+                rects[old_cursor_loc[0]][old_cursor_loc[1]].fillColor = (214, 214, 214) # light gray
+            rects[trial.cursor_loc[0]][trial.cursor_loc[1]].lineColor = (72, 160, 248) # blue
+            rects[trial.cursor_loc[0]][trial.cursor_loc[1]].lineWidth = 6
         except IndexError:
             print('index out of range')
 
-    # Pressed squares
+    # Highlight already pressed squares
+    # Highlight squares tthat are neg examples
     for i in range(6):
         for j in range(6):
-            if trial.squares[i][j] == 1:
-                rects[i][j].fillColor = (72, 160, 248)
-                try:
+            try:
+                if test_prob['A'][i][j] == 0 and trial.cursor_loc == [i, j]:
+                    rects[i][j].lineColor = (218, 60, 37) # red
+                    rects[i][j].lineWidth = 6
+                if trial.squares[i][j] == 1:
+                    rects[i][j].fillColor = (72, 160, 248)
                     if trial.cursor_loc == [i, j]:
-                        rects[i][j].lineColor = (218, 60, 37)
-                        rects[i][j].lineWidth=6
-                except IndexError:
-                    print('index out of range')
-
-    # TODO: should we make it possible to unprerss the squares if u accidentally pressed thte squares?
+                        rects[i][j].lineColor = (218, 60, 37) # red
+                        rects[i][j].lineWidth = 6
+            except IndexError or KeyError:
+                print('index out of range')
 
     for i in range(6):
             for j in range(6):
