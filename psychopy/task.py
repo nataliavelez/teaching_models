@@ -242,12 +242,8 @@ while True:
         elif thisKey == 'space':
             if trial.squares[trial.cursor_loc[0]][trial.cursor_loc[1]] == 0:
                 trial.select()
+                rects[trial.cursor_loc[0]][trial.cursor_loc[1]].fillColor='blue'
 
-                rects[trial.cursor_loc[0]][trial.cursor_loc[1]] = visual.Rect(win=win,
-                   fillColor='blue',
-                   pos=(xlocs[trial.cursor_loc[0]], ylocs[trial.cursor_loc[1]]),
-                   units='norm',
-                   size=.17)
             else:
                 trial.unselect()
 
@@ -267,19 +263,8 @@ while True:
     # Change current cursor location color
     if thisKey != 'space':
         try:
-
-            rects[old_cursor_loc[0]][old_cursor_loc[1]] = visual.Rect(win=win,
-                            fillColor='black',
-                            pos=(xlocs[old_cursor_loc[0]], ylocs[old_cursor_loc[1]]),
-                            units='norm',
-                            size=.17)
-
-
-            rects[trial.cursor_loc[0]][trial.cursor_loc[1]] = visual.Rect(win=win,
-                            fillColor='green',
-                            pos=(xlocs[trial.cursor_loc[0]], ylocs[trial.cursor_loc[1]]),
-                            units='norm',
-                            size=.17)
+            rects[old_cursor_loc[0]][old_cursor_loc[1]].fillColor = 'black'
+            rects[trial.cursor_loc[0]][trial.cursor_loc[1]].fillColor='green'
         except IndexError:
             print('index out of range')
 
@@ -287,11 +272,7 @@ while True:
     for i in range(6):
         for j in range(6):
             if trial.squares[i][j] == 1:
-                rects[i][j] = visual.Rect(win=win,
-                            fillColor='blue',
-                            pos=(xlocs[i], ylocs[j]),
-                            units='norm',
-                            size=.17)
+                rects[i][j].fillColor = 'blue'
 
     # TODO: should we make it possible to unprerss the squares if u accidentally pressed thte squares?
 
