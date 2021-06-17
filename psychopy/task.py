@@ -185,7 +185,7 @@ for i, loc in enumerate(locs):
 
 true_h_border = visual.Rect(win,
                             size=5*sq_size + .05,
-                            lineWidth=3,
+                            lineWidth=5,
                             lineColor=(238, 188, 64),
                             colorSpace='rgb255',
                             pos=(locs[true_h_idx][0], locs[true_h_idx][1]))
@@ -201,14 +201,67 @@ core.wait(5.0)
 win.close()
 core.quit()
 
-
-# TODO: can call setcolors to set colors
-
 #%% for each trial:
+canv_sq_size = .05
+canvas_loc = [0, -.5]
+# xlocs = [-.5, -.3, -.1, .1, .3, .5]
+# ylocs = xlocs.copy()
 
-xlocs = [-.5, -.3, -.1, .1, .3, .5]
-ylocs = xlocs.copy()
+x_low, x_high = canvas_loc[0] - 2.5*canv_sq_size, canvas_loc[0] + 2.5*canv_sq_size
+y_low, y_high = canvas_loc[1] - 2.5*canv_sq_size, canvas_loc[1] + 2.5*canv_sq_size
+
+xlocs = np.linspace(x_low, x_high, 6)
+ylocs = np.linspace(y_low, y_high, 6)
+
 win = visual.Window([800, 600], monitor="test", units="norm", color='black')
+
+for i, loc in enumerate(locs):
+
+    xys = []
+    x_low, x_high = loc[0] - 2.5*sq_size, loc[0] + 2.5*sq_size
+    y_low, y_high = loc[1] - 2.5*sq_size, loc[1] + 2.5*sq_size
+
+    xs = np.linspace(x_low, x_high, 6)
+    ys = np.linspace(y_low, y_high, 6)
+
+    for y in ys:
+        for x in xs:
+            xys.append((x, y))
+
+
+    hs.append(visual.ElementArrayStim(win=win,
+                                   xys=xys,
+                                   colors=newcolorlist[i],
+                                   colorSpace='rgb255',
+                                  fieldShape='sqr',
+                                  nElements=36,
+                                  elementMask=None,
+                                  elementTex=None,
+                                  sizes=(.03, .03)))
+
+
+# Highlight true hypothesis
+
+true_h_border = visual.Rect(win,
+                            size=5*sq_size + .05,
+                            lineWidth=7,
+                            lineColor=(238, 188, 64),
+                            colorSpace='rgb255',
+                            pos=(locs[true_h_idx][0], locs[true_h_idx][1]))
+
+# Add letters on top
+
+letters = ['A', 'B', 'C', 'D']
+letter_locs = [(-.75, .8), (-.25, .8), (.25, .8), (.75, .8)]
+
+lets = []
+for i, l in enumerate(letter_locs):
+    lets.append(visual.TextStim(win=win,
+                                   text=letters[i],
+                                   pos=letter_locs[i],
+                                   color='white'
+        ))
+
 trial = Move()
 
 rects = {}
@@ -221,17 +274,27 @@ for i in range(6):
                        colorSpace='rgb255',
                        pos=(xlocs[i], ylocs[j]),
                        units='norm',
-                       size=.17)
+                       size=canv_sq_size-.01)
         else:
             rects[i][j] = visual.Rect(win=win,
                        fillColor=(214, 214, 214),
                        colorSpace='rgb255',
                        pos=(xlocs[i], ylocs[j]),
                        units='norm',
-                       size=.17)
+                       size=canv_sq_size-.01)
 
 while True:
 
+    # Draw top stuff
+    for h in hs:
+        h.draw()
+
+    true_h_border.draw()
+
+    for lett in lets:
+        lett.draw()
+
+    # Canvas part
     allKeys = event.waitKeys()
     allowed_keys = ['left', 'right', 'up', 'down', 'enter', 'q']
 
@@ -250,7 +313,7 @@ while True:
             trial.down()
         elif thisKey == 'space':
             if test_prob['A'][trial.cursor_loc[0]][trial.cursor_loc[1]] == 0:
-                print('error :(')
+                print('error :( cant pick negative examples')
             else:
                 if trial.squares[trial.cursor_loc[0]][trial.cursor_loc[1]] == 0:
                     trial.select()
@@ -286,7 +349,7 @@ while True:
                 rects[old_cursor_loc[0]][old_cursor_loc[1]].fillColor = (214, 214, 214) # light gray
             rects[trial.cursor_loc[0]][trial.cursor_loc[1]].lineColor = (72, 160, 248) # blue
             rects[trial.cursor_loc[0]][trial.cursor_loc[1]].lineWidth = 6
-        except IndexError:
+        except (IndexError, KeyError):
             print('index out of range')
 
     # Highlight already pressed squares
@@ -302,7 +365,7 @@ while True:
                     if trial.cursor_loc == [i, j]:
                         rects[i][j].lineColor = (218, 60, 37) # red
                         rects[i][j].lineWidth = 6
-            except IndexError or KeyError:
+            except (IndexError, KeyError):
                 print('index out of range')
 
     for i in range(6):
@@ -314,4 +377,4 @@ while True:
 
     event.clearEvents()
 
-# TODO: save all key presses
+# TODO: after every enter, a screen pops up asking hem if they would like to stop or continue
