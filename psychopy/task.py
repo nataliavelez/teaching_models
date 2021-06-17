@@ -283,16 +283,26 @@ for i in range(6):
                        units='norm',
                        size=canv_sq_size-.01)
 
+
+# Showing the example selected to the learner
+
+msg = visual.TextStim(win, text='Sending example to [NAME]...')
+learner_rects = {}
+for i in range(6):
+    learner_rects[i] = {}
+    for j in range(6):
+        learner_rects[i][j] = visual.Rect(win=win,
+                       fillColor=(94, 93, 95), # dark gray
+                       colorSpace='rgb255',
+                       pos=(xlocs[i], ylocs[j]),
+                       units='norm',
+                       size=canv_sq_size-.01)
+
+
+
 while True:
 
-    # Draw top stuff
-    for h in hs:
-        h.draw()
 
-    true_h_border.draw()
-
-    for lett in lets:
-        lett.draw()
 
     # Canvas part
     allKeys = event.waitKeys()
@@ -318,6 +328,28 @@ while True:
                 if trial.squares[trial.cursor_loc[0]][trial.cursor_loc[1]] == 0:
                     trial.select()
                     rects[trial.cursor_loc[0]][trial.cursor_loc[1]].fillColor='blue'
+                    win.flip(clearBuffer=True)
+                    msg.draw()
+                    win.flip()
+                    core.wait(2.0)
+                    win.flip(clearBuffer=True)
+
+                    for h in hs:
+                        h.draw()
+
+                    true_h_border.draw()
+
+                    for lett in lets:
+                        lett.draw()
+
+                    learner_rects[trial.cursor_loc[0]][trial.cursor_loc[1]].fillColor=(72, 160, 248)
+
+                    for i in range(6):
+                        for j in range(6):
+                            learner_rects[i][j].draw()
+
+                    win.flip()
+                    core.wait(2.0)
 
                 else:
                     trial.unselect()
@@ -336,7 +368,6 @@ while True:
     #print(trial.cursor_loc)
 
     # Change current cursor location color
-
     ## theres some sort of edge case error here..... fix later
     if thisKey != 'space':
 
@@ -371,6 +402,15 @@ while True:
     for i in range(6):
             for j in range(6):
                 rects[i][j].draw()
+
+        # Draw top stuff
+    for h in hs:
+        h.draw()
+
+    true_h_border.draw()
+
+    for lett in lets:
+        lett.draw()
 
     win.flip()
 
