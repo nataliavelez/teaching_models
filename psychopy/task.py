@@ -299,6 +299,18 @@ for i in range(6):
                        size=canv_sq_size-.01)
 
 
+# Add move on vs. stay on the same example keys
+move_on = visual.TextBox(window=win,
+                         text='Yes',
+                         pos=(-.5, 0),
+                         units='norm',
+                         size=(.4,.2))
+
+stay = visual.TextBox(window=win,
+                         text='No',
+                         pos=(0.5, 0),
+                         units='norm',
+                         size=(.4,.2))
 
 while True:
 
@@ -342,14 +354,38 @@ while True:
                     for lett in lets:
                         lett.draw()
 
+                    for i in range(6):
+                        for j in range(6):
+                            learner_rects[i][j].draw()
+
+                    win.flip()
+                    core.wait(1.0)
+
+                    for h in hs:
+                        h.draw()
+
+                    true_h_border.draw()
+
+                    for lett in lets:
+                        lett.draw()
+
                     learner_rects[trial.cursor_loc[0]][trial.cursor_loc[1]].fillColor=(72, 160, 248)
 
                     for i in range(6):
                         for j in range(6):
                             learner_rects[i][j].draw()
 
+                    win.flip(clearBuffer=True)
+                    core.wait(3.0)
+
+                    #while True:
+
+                    move_on.draw()
+                    stay.draw()
                     win.flip()
+
                     core.wait(2.0)
+
 
                 else:
                     trial.unselect()
