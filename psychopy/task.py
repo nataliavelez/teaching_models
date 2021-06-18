@@ -46,14 +46,14 @@ class Move(Canvas):
 
     def right(self):
         x = self.cursor_loc[0] + 1
-        if x < 0:
+        if x > 5:
             print("Invalid move")
         else:
             self.cursor_loc[0] = x
 
     def up(self):
         y = self.cursor_loc[1] + 1
-        if y < 0:
+        if y > 5:
             print("Invalid move")
         else:
             self.cursor_loc[1] = y
@@ -66,6 +66,98 @@ class Move(Canvas):
             self.cursor_loc[1] = y
 
 
+class Feedback:
+
+    def __init__(self):
+        self.cursor_loc = 0  # 0 for left, 1 for right
+        self.exs_left = 4  # 4 possible examples to select per teaching prob
+        self.selected = False
+
+    def left(self):
+        self.cursor_loc = 0
+
+    def right(self):
+        self.cursor_loc = 1
+
+    def select(self):
+        self.selected = True
+
+        if self.cursor_loc == 0:
+            self.exs_left -= 1  # Move on to selecting next block
+
+
+        elif self.cursor_loc == 1:
+            # TODO: Move on to next teaching problem
+            win.close()
+            core.quit()
+
+        # if self.exs_left == 0:
+        #     # TODO: move on to next teaching problem
+        #     win.close()
+        #     core.quit()
+
+# %% feedback
+win = visual.Window([800, 600], monitor="test", units="norm", color='black')
+
+
+stay = visual.TextBox(window=win,
+                         text='Yes',
+                         font_size=30,
+                         font_color=[1,-1,-1],
+                         background_color=[-1,-1,-1,1],
+                         border_color=[-1,-1,1,1],
+                         border_stroke_width=4,
+                         textgrid_shape=[3,1], # 20 cols (20 chars wide)
+                                                 # by 4 rows (4 lines of text)
+                         pos=(-.5, 0)
+                         )
+
+# visual.TextBox(window=win,
+#                          text='Yes',
+#                          pos=(-.5, 0),
+#                          color_space='rgb',
+#                          units='norm',
+#                          size=(.4,.2))
+
+move_on = visual.TextBox(window=win,
+                         text='No',
+                         font_size=30,
+                         font_color=[1,-1,-1],
+                         background_color=[-1,-1,-1,1],
+                         border_color=[-1,-1,1,1],
+                         border_stroke_width=4,
+                         textgrid_shape=[3,1], # 20 cols (20 chars wide)
+                                                 # by 4 rows (4 lines of text)
+                         pos=(.5, 0)
+                         )
+
+buttons = [move_on, stay]
+#%%
+
+testtrial = Feedback()
+
+
+allKeys = event.waitKeys()
+
+for thisKey in allKeys:
+    if thisKey == 'left':
+        testtrial.left()
+        move_on.setBackgroundColor('green')
+    if thisKey == 'right':
+        testtrial.right()
+        stay.setBackgroundColor('green')
+    if thisKey == 'enter':
+        buttons[testtrial.cursor_loc].setBackgroundColor('blue')
+        testtrial.select()
+
+
+
+
+
+## Make feedback screen
+
+
+# cursor_loc and selected tells you where you are re: the examples
 # %% Import and format teaching problems
 
 f = open('/Users/aliciachen/Dropbox/teaching_models/problems.json')
@@ -84,6 +176,8 @@ for prob_idx, prob in enumerate(problems_raw):
                 probs[prob_idx][h][row_idx][col_idx] = value
 
 # %% Test first teaching problem
+
+
 
 test_prob = probs[0]
 prob_idxs = list(test_prob.keys())
@@ -217,21 +311,21 @@ for i in range(6):
                                           size=canv_sq_size-.01)
 
 
-# Add move on vs. stay on the same example keys
-move_on = visual.TextBox(window=win,
-                         text='Yes',
-                         pos=(-.5, 0),
-                         units='norm',
-                         size=(.4,.2))
+# # Add move on vs. stay on the same example keys
+# move_on = visual.TextBox(window=win,
+#                          text='Yes',
+#                          pos=(-.5, 0),
+#                          units='norm',
+#                          size=(.4,.2))
 
-stay = visual.TextBox(window=win,
-                         text='No',
-                         pos=(0.5, 0),
-                         units='norm',
-                         size=(.4,.2))
+# stay = visual.TextBox(window=win,
+#                          text='No',
+#                          pos=(0.5, 0),
+#                          units='norm',
+#                          size=(.4,.2))
 
-
-# Interactivity
+# %% Interactivity
+#win = visual.Window([800, 600], monitor="test", units="norm", color='black')
 while True:
 
     # Canvas part
@@ -300,12 +394,57 @@ while True:
                     win.flip(clearBuffer=True)
                     core.wait(3.0)
 
-                    move_on.draw()
-                    stay.draw()
-                    win.flip()
+
+
+
+                    testtrial = Feedback()
+
+                    while True:
+
+                        move_on.draw()
+                        stay.draw()
+                        win.flip()
+
+                        allKeys = event.waitKeys()
+
+                        # For reference:
+                        # stay = visual.TextBox(window=win,
+                        #  text='No',
+                        #  font_size=30,
+                        #  font_color=[1,-1,-1],
+                        #  background_color=[-1,-1,-1,1],
+                        #  border_color=[-1,-1,1,1],
+                        #  border_stroke_width=4,
+                        #  textgrid_shape=[3,1], # 20 cols (20 chars wide)
+                        #                          # by 4 rows (4 lines of text)
+                        #  pos=(.5, 0)
+                        #  )
+
+                        for thisKey in allKeys:
+                            if thisKey == 'left':
+                                testtrial.left()
+                                stay.setBackgroundColor([-.8, -1, -1, 1]) # red
+                                move_on.setBackgroundColor([.8, .2, .5]) # black
+                            if thisKey == 'right':
+                                testtrial.right()
+                                move_on.setBackgroundColor([-.8, -1, -1, 1]) # red
+                                stay.setBackgroundColor([.8, .2, .5]) # black
+                            if thisKey == 'space':
+                                buttons[testtrial.cursor_loc].setFontColor([1,-1,-1,.3])
+                                testtrial.select()
+                                if testtrial.cursor_loc == 0:
+                                    break
+
+
+
+                        win.flip()
+
+                        if allKeys[0] == 'space' and testtrial.cursor_loc == 0:
+                            break
+
+                        event.clearEvents()
 
                     core.wait(2.0)
-
                 else:
                     trial.unselect()
                     # TODO: get rid of unselect
@@ -330,7 +469,7 @@ while True:
             rects[trial.cursor_loc[0]][trial.cursor_loc[1]].lineColor = (72, 160, 248)  # blue
             rects[trial.cursor_loc[0]][trial.cursor_loc[1]].lineWidth = 6
         except (IndexError, KeyError):
-            print('index out of range')
+            print('index out of range')  # TODO: change to a visual stim
 
     # Highlight already pressed squares and neg example squares
     for i in range(6):
@@ -345,7 +484,7 @@ while True:
                         rects[i][j].lineColor = (218, 60, 37)  # red
                         rects[i][j].lineWidth = 6
             except (IndexError, KeyError):
-                print('index out of range')
+                print('index out of range')  # TODO: change to a visual stim
 
     # Draw canvas
     for i in range(6):
