@@ -100,55 +100,59 @@ class Feedback:
 win = visual.Window([800, 600], monitor="test", units="norm", color='black')
 
 
-stay = visual.TextBox(window=win,
-                         text='Yes',
-                         font_size=30,
-                         font_color=[1,-1,-1],
-                         background_color=[-1,-1,-1,1],
-                         border_color=[-1,-1,1,1],
-                         border_stroke_width=4,
-                         textgrid_shape=[3,1], # 20 cols (20 chars wide)
-                                                 # by 4 rows (4 lines of text)
-                         pos=(-.5, 0)
-                         )
-
-# visual.TextBox(window=win,
+# stay = visual.TextBox(window=win,
 #                          text='Yes',
-#                          pos=(-.5, 0),
-#                          color_space='rgb',
-#                          units='norm',
-#                          size=(.4,.2))
+#                          font_size=30,
+#                          #colorSpace='rgb255',
+#                          opacity=1,
+#                          font_color=[1, 1, 1],
+#                          #background_color=[0, 0, 0],
+#                          border_color=[1, 1, 1],
+#                          border_stroke_width=4,
+#                          textgrid_shape=[3,1], # 20 cols (20 chars wide)
+#                                                  # by 4 rows (4 lines of text)
+#                          pos=(-.5, 0)
+#                          )
 
-move_on = visual.TextBox(window=win,
-                         text='No',
-                         font_size=30,
-                         font_color=[1,-1,-1],
-                         background_color=[-1,-1,-1,1],
-                         border_color=[-1,-1,1,1],
-                         border_stroke_width=4,
-                         textgrid_shape=[3,1], # 20 cols (20 chars wide)
-                                                 # by 4 rows (4 lines of text)
-                         pos=(.5, 0)
-                         )
+# # visual.TextBox(window=win,
+# #                          text='Yes',
+# #                          pos=(-.5, 0),
+# #                          color_space='rgb',
+# #                          units='norm',
+# #                          size=(.4,.2))
 
-buttons = [move_on, stay]
+# move_on = visual.TextBox(window=win,
+#                          text='No',
+#                          font_size=30,
+#                          opacity=1,
+#                          #colorSpace='rgb255',
+#                          font_color=[1, 1, 1],
+#                          #background_color=[0, 0, 0],
+#                          border_color=[1, 1, 1],
+#                          border_stroke_width=4,
+#                          textgrid_shape=[3,1], # 20 cols (20 chars wide)
+#                                                  # by 4 rows (4 lines of text)
+#                          pos=(.5, 0)
+#                          )
+
+# buttons = [move_on, stay]
 #%%
 
-testtrial = Feedback()
+# testtrial = Feedback()
 
 
-allKeys = event.waitKeys()
+# allKeys = event.waitKeys()
 
-for thisKey in allKeys:
-    if thisKey == 'left':
-        testtrial.left()
-        move_on.setBackgroundColor('green')
-    if thisKey == 'right':
-        testtrial.right()
-        stay.setBackgroundColor('green')
-    if thisKey == 'enter':
-        buttons[testtrial.cursor_loc].setBackgroundColor('blue')
-        testtrial.select()
+# for thisKey in allKeys:
+#     if thisKey == 'left':
+#         testtrial.left()
+#         move_on.setBackgroundColor('green')
+#     if thisKey == 'right':
+#         testtrial.right()
+#         stay.setBackgroundColor('green')
+#     if thisKey == 'enter':
+#         buttons[testtrial.cursor_loc].setBackgroundColor('blue')
+#         testtrial.select()
 
 
 
@@ -205,7 +209,7 @@ newcolorlist = [[] for i in range(4)]
 for idx, h in enumerate(colorlist):
     for val in h:
         if val == 0:
-            newcolorlist[idx].append([30, 76, 124])
+            newcolorlist[idx].append([30, 76, 124])  # Dark blue
         else:
             newcolorlist[idx].append([72, 160, 248])
 
@@ -311,18 +315,53 @@ for i in range(6):
                                           size=canv_sq_size-.01)
 
 
-# # Add move on vs. stay on the same example keys
-# move_on = visual.TextBox(window=win,
-#                          text='Yes',
-#                          pos=(-.5, 0),
-#                          units='norm',
-#                          size=(.4,.2))
 
-# stay = visual.TextBox(window=win,
-#                          text='No',
-#                          pos=(0.5, 0),
-#                          units='norm',
-#                          size=(.4,.2))
+# Move on and stay text boxes
+stay = visual.TextBox(window=win,
+                         text='Yes',
+                         font_size=30,
+                         #colorSpace='rgb255',
+                         opacity=1,
+                         font_color=[1, 1, 1],
+                         #background_color=[0, 0, 0],
+                         border_color=[1, 1, 1],
+                         border_stroke_width=4,
+                         textgrid_shape=[3,1],
+                         pos=(-.5, 0)
+                         )
+
+move_on = visual.TextBox(window=win,
+                         text='No',
+                         font_size=30,
+                         opacity=1,
+                         #colorSpace='rgb255',
+                         font_color=[1, 1, 1],
+                         #background_color=[0, 0, 0],
+                         border_color=[1, 1, 1],
+                         border_stroke_width=4,
+                         textgrid_shape=[3,1],
+                         pos=(.5, 0)
+                         )
+
+buttons = [move_on, stay]
+
+# Text on top and underneath move on and stay text boxes
+cont = visual.TextStim(win=win,
+                       text="Continue?",
+                       pos=(0, .3),
+                       height=.07)
+
+yestext = visual.TextStim(win=win,
+                          text="Provide another example",
+                          pos=(-.5, -.3),
+                          height=.07)
+
+notext = visual.TextStim(win=win,
+                         text="Next problem",
+                         pos=(.5, -.3),
+                         height=.07)
+
+
 
 # %% Interactivity
 #win = visual.Window([800, 600], monitor="test", units="norm", color='black')
@@ -401,12 +440,19 @@ while True:
 
                     while True:
 
+
+
                         move_on.draw()
                         stay.draw()
+                        cont.draw()
+                        yestext.draw()
+                        notext.draw()
+
+
+
                         win.flip()
 
                         allKeys = event.waitKeys()
-
                         # For reference:
                         # stay = visual.TextBox(window=win,
                         #  text='No',
@@ -423,14 +469,14 @@ while True:
                         for thisKey in allKeys:
                             if thisKey == 'left':
                                 testtrial.left()
-                                stay.setBackgroundColor([-.8, -1, -1, 1]) # red
-                                move_on.setBackgroundColor([.8, .2, .5]) # black
+                                stay.setBackgroundColor([.122, .297, .486]) # blue
+                                move_on.setBackgroundColor(None) # black
                             if thisKey == 'right':
                                 testtrial.right()
-                                move_on.setBackgroundColor([-.8, -1, -1, 1]) # red
-                                stay.setBackgroundColor([.8, .2, .5]) # black
+                                move_on.setBackgroundColor([.122, .297, .486]) # blue
+                                stay.setBackgroundColor(None) # black
                             if thisKey == 'space':
-                                buttons[testtrial.cursor_loc].setFontColor([1,-1,-1,.3])
+                                #buttons[testtrial.cursor_loc].setFontColor([.856, .234, .145])
                                 testtrial.select()
                                 if testtrial.cursor_loc == 0:
                                     break
