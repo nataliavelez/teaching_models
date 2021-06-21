@@ -365,15 +365,144 @@ notext = visual.TextStim(win=win,
 
 # %% Interactivity
 #win = visual.Window([800, 600], monitor="test", units="norm", color='black')
+
+timer = core.CountdownTimer(10)  # allowed time for selecting each example
+
+
+while True:
+    print(timer.getTime()) # This doesn't work, we want it so that
+    if timer.getTime() < 0:
+        testtrial = Feedback()
+
+        while True: # Move on and stay buttons
+
+
+
+            move_on.draw()
+            stay.draw()
+            cont.draw()
+            yestext.draw()
+            notext.draw()
+
+
+
+            win.flip()
+
+            allKeys = event.waitKeys()
+            # For reference:
+            # stay = visual.TextBox(window=win,
+            #  text='No',
+            #  font_size=30,
+            #  font_color=[1,-1,-1],
+            #  background_color=[-1,-1,-1,1],
+            #  border_color=[-1,-1,1,1],
+            #  border_stroke_width=4,
+            #  textgrid_shape=[3,1], # 20 cols (20 chars wide)
+            #                          # by 4 rows (4 lines of text)
+            #  pos=(.5, 0)
+            #  )
+
+            for thisKey in allKeys:
+                if thisKey == 'left':
+                    testtrial.left()
+                    stay.setBackgroundColor([.122, .297, .486]) # blue
+                    move_on.setBackgroundColor(None) # black
+                if thisKey == 'right':
+                    testtrial.right()
+                    move_on.setBackgroundColor([.122, .297, .486]) # blue
+                    stay.setBackgroundColor(None) # black
+                if thisKey == 'space':
+                    testtrial.select()
+                    if testtrial.cursor_loc == 0:
+                        break
+
+
+
+            win.flip()
+
+            if allKeys[0] == 'space' and testtrial.cursor_loc == 0:
+                break
+
+            event.clearEvents()
+
+        core.wait(2.0)
+
+#%%
+
+timer = core.CountdownTimer(10)
+nKeys = 0
+maxExamples = 4
+
+
 while True:
 
-    # Canvas part
-    allKeys = event.waitKeys()
+     # Time runs out, but in this state only works if you are clicking things
+    if timer.getTime() < 0:
+        testtrial = Feedback()
+
+        while True: # Move on and stay buttons
+
+
+
+            move_on.draw()
+            stay.draw()
+            cont.draw()
+            yestext.draw()
+            notext.draw()
+
+
+
+            win.flip()
+
+            allKeys = event.waitKeys()
+            # For reference:
+            # stay = visual.TextBox(window=win,
+            #  text='No',
+            #  font_size=30,
+            #  font_color=[1,-1,-1],
+            #  background_color=[-1,-1,-1,1],
+            #  border_color=[-1,-1,1,1],
+            #  border_stroke_width=4,
+            #  textgrid_shape=[3,1], # 20 cols (20 chars wide)
+            #                          # by 4 rows (4 lines of text)
+            #  pos=(.5, 0)
+            #  )
+
+            for thisKey in allKeys:
+                if thisKey == 'left':
+                    testtrial.left()
+                    stay.setBackgroundColor([.122, .297, .486]) # blue
+                    move_on.setBackgroundColor(None) # black
+                if thisKey == 'right':
+                    testtrial.right()
+                    move_on.setBackgroundColor([.122, .297, .486]) # blue
+                    stay.setBackgroundColor(None) # black
+                if thisKey == 'space':
+                    testtrial.select()
+                    if testtrial.cursor_loc == 0:
+                        break
+
+
+
+            win.flip()
+
+            if allKeys[0] == 'space' and testtrial.cursor_loc == 0:
+                break
+
+            event.clearEvents()
+
+        core.wait(2.0)
+
+    #nKeys = 0
+    allKeys = event.getKeys()
     allowed_keys = ['left', 'right', 'up', 'down', 'enter', 'q']
+    # Canvas part
 
     old_cursor_loc = trial.cursor_loc.copy()
 
-    for thisKey in allKeys:
+    if len(allKeys) > nKeys:
+        thisKey = allKeys[-1]
+
         if thisKey == 'left':
             trial.left()
         elif thisKey == 'right':
@@ -438,7 +567,7 @@ while True:
 
                     testtrial = Feedback()
 
-                    while True:
+                    while True: # Move on and stay buttons
 
 
 
@@ -476,7 +605,6 @@ while True:
                                 move_on.setBackgroundColor([.122, .297, .486]) # blue
                                 stay.setBackgroundColor(None) # black
                             if thisKey == 'space':
-                                #buttons[testtrial.cursor_loc].setFontColor([.856, .234, .145])
                                 testtrial.select()
                                 if testtrial.cursor_loc == 0:
                                     break
@@ -496,57 +624,61 @@ while True:
                     # TODO: get rid of unselect
 
             # TODO: Display a message for selecting negative examples?
-            break
+            #break
         elif thisKey == 'q':
             win.close()
             core.quit()
 
-    print(allKeys)
+        print(thisKey)
 
-    if thisKey != 'space':
 
-        try:
-            rects[old_cursor_loc[0]][old_cursor_loc[1]].lineColor = 'none'
 
-            if test_prob['A'][old_cursor_loc[0]][old_cursor_loc[1]] == 0:
-                rects[old_cursor_loc[0]][old_cursor_loc[1]].fillColor = (94, 93, 95)  # dark gray
-            else:
-                rects[old_cursor_loc[0]][old_cursor_loc[1]].fillColor = (214, 214, 214)  # light gray
-            rects[trial.cursor_loc[0]][trial.cursor_loc[1]].lineColor = (72, 160, 248)  # blue
-            rects[trial.cursor_loc[0]][trial.cursor_loc[1]].lineWidth = 6
-        except (IndexError, KeyError):
-            print('index out of range')  # TODO: change to a visual stim
+        if thisKey != 'space':
 
-    # Highlight already pressed squares and neg example squares
-    for i in range(6):
-        for j in range(6):
             try:
-                if test_prob['A'][i][j] == 0 and trial.cursor_loc == [i, j]:
-                    rects[i][j].lineColor = (218, 60, 37)  # red
-                    rects[i][j].lineWidth = 6
-                if trial.squares[i][j] == 1:
-                    rects[i][j].fillColor = (72, 160, 248)
-                    if trial.cursor_loc == [i, j]:
-                        rects[i][j].lineColor = (218, 60, 37)  # red
-                        rects[i][j].lineWidth = 6
+                rects[old_cursor_loc[0]][old_cursor_loc[1]].lineColor = 'none'
+
+                if test_prob['A'][old_cursor_loc[0]][old_cursor_loc[1]] == 0:
+                    rects[old_cursor_loc[0]][old_cursor_loc[1]].fillColor = (94, 93, 95)  # dark gray
+                else:
+                    rects[old_cursor_loc[0]][old_cursor_loc[1]].fillColor = (214, 214, 214)  # light gray
+                rects[trial.cursor_loc[0]][trial.cursor_loc[1]].lineColor = (72, 160, 248)  # blue
+                rects[trial.cursor_loc[0]][trial.cursor_loc[1]].lineWidth = 6
             except (IndexError, KeyError):
                 print('index out of range')  # TODO: change to a visual stim
 
-    # Draw canvas
-    for i in range(6):
-        for j in range(6):
-            rects[i][j].draw()
+        # Highlight already pressed squares and neg example squares
+        for i in range(6):
+            for j in range(6):
+                try:
+                    if test_prob['A'][i][j] == 0 and trial.cursor_loc == [i, j]:
+                        rects[i][j].lineColor = (218, 60, 37)  # red
+                        rects[i][j].lineWidth = 6
+                    if trial.squares[i][j] == 1:
+                        rects[i][j].fillColor = (72, 160, 248)
+                        if trial.cursor_loc == [i, j]:
+                            rects[i][j].lineColor = (218, 60, 37)  # red
+                            rects[i][j].lineWidth = 6
+                except (IndexError, KeyError):
+                    print('index out of range')  # TODO: change to a visual stim
 
-    # Draw top stuff
-    for h in hs:
-        h.draw()
+        # Draw canvas
+        for i in range(6):
+            for j in range(6):
+                rects[i][j].draw()
 
-    true_h_border.draw()
+        # Draw top stuff
+        for h in hs:
+            h.draw()
 
-    # Draw ABCD
-    for lett in lets:
-        lett.draw()
+        true_h_border.draw()
 
-    win.flip()
+        # Draw ABCD
+        for lett in lets:
+            lett.draw()
 
-    event.clearEvents()
+        win.flip()
+
+    #event.clearEvents()
+
+    nKeys = len(allKeys)
