@@ -365,7 +365,7 @@ notext = visual.TextStim(win=win,
 
 
 
-# %% Interactivity
+# %% Interactivity DONT RUN
 #win = visual.Window([800, 600], monitor="test", units="norm", color='black')
 
 timer = core.CountdownTimer(10)  # allowed time for selecting each example
@@ -431,7 +431,7 @@ while True:
 
 #%%
 
-timer = core.CountdownTimer(15)
+timer = core.CountdownTimer(7)
 nKeys = 0
 maxExamples = 4
 examplesLeft = 4
@@ -610,8 +610,11 @@ while examplesLeft > 0: # while examplesLeft < maxExamples
                     if examplesLeft == 1:
                         break  # TODO: move on to next teaching problem
 
+                    # Feedback screen
                     testtrial = Feedback()
 
+                    len_allKeys1 = 0
+                    timer2 = core.CountdownTimer(10)
                     while True: # Move on and stay buttons
 
 
@@ -626,7 +629,10 @@ while examplesLeft > 0: # while examplesLeft < maxExamples
 
                         win.flip()
 
-                        allKeys = event.waitKeys()
+                        allKeys1 = event.getKeys()
+                        if len(allKeys1) > len_allKeys1:
+                            thisKey = allKeys1[-1]
+                        len_allkeys1 = len(allKeys1)
                         # For reference:
                         # stay = visual.TextBox(window=win,
                         #  text='No',
@@ -640,30 +646,35 @@ while examplesLeft > 0: # while examplesLeft < maxExamples
                         #  pos=(.5, 0)
                         #  )
 
-                        for thisKey in allKeys:
-                            if thisKey == 'left':
-                                testtrial.left()
-                                stay.setBackgroundColor([.122, .297, .486]) # blue
-                                move_on.setBackgroundColor(None) # black
-                            if thisKey == 'right':
-                                testtrial.right()
-                                move_on.setBackgroundColor([.122, .297, .486]) # blue
-                                stay.setBackgroundColor(None) # black
-                            if thisKey == 'space':
-                                testtrial.select()
-                                if testtrial.cursor_loc == 0:
-                                    break
+                        #for thisKey in allKeys:
+                        if thisKey == 'left':
+                            testtrial.left()
+                            stay.setBackgroundColor([.122, .297, .486]) # blue
+                            move_on.setBackgroundColor(None) # black
+                        if thisKey == 'right':
+                            testtrial.right()
+                            move_on.setBackgroundColor([.122, .297, .486]) # blue
+                            stay.setBackgroundColor(None) # black
+                        if thisKey == 'space' or timer2.getTime() < 0:
+                            testtrial.select()
+                            # timer1.reset()
+                            # if testtrial.cursor_loc == 0:
+                            #     break
 
 
 
-                        win.flip()
+                        #win.flip()
 
-                        if allKeys[0] == 'space' and testtrial.cursor_loc == 0:
+                        # Continue providing examples
+                        if (thisKey == 'space' or timer2.getTime() < 0) and testtrial.cursor_loc == 0:
+                            event.clearEvents()
 
                             examplesLeft -= 1  # decrease by one example
                             timer.reset()
-                            event.clearEvents()
+                            timer2.reset()
                             break
+
+
 
                     core.wait(2.0)
 
