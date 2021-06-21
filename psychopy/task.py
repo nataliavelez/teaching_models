@@ -330,6 +330,8 @@ stay = visual.TextBox(window=win,
                          pos=(-.5, 0)
                          )
 
+stay.setBackgroundColor([.122, .297, .486])  # Default starting key point
+
 move_on = visual.TextBox(window=win,
                          text='No',
                          font_size=30,
@@ -429,7 +431,7 @@ while True:
 
 #%%
 
-timer = core.CountdownTimer(10)
+timer = core.CountdownTimer(15)
 nKeys = 0
 maxExamples = 4
 examplesLeft = 4
@@ -439,10 +441,34 @@ examplesLeft = 4
 # Start timer each time
 
 
+
+
 while examplesLeft > 0: # while examplesLeft < maxExamples
+
+    # Start by drawing the stuff we start with
+    # Draw canvas
+    for i in range(6):
+        for j in range(6):
+            rects[i][j].draw()
+
+    # Draw top stuff
+    for h in hs:
+        h.draw()
+
+    true_h_border.draw()
+
+    # Draw ABCD
+    for lett in lets:
+        lett.draw()
+
+    win.flip()
 
      # Time runs out, but in this state only works if you are clicking things
     if timer.getTime() < 0:
+
+        if examplesLeft == 1:
+            break # TODO: move on to next teaching problem
+
         testtrial = Feedback()
 
         while True: # Move on and stay buttons
@@ -574,7 +600,8 @@ while examplesLeft > 0: # while examplesLeft < maxExamples
                     core.wait(3.0)
 
 
-
+                    if examplesLeft == 1:
+                        break  # TODO: move on to next teaching problem
 
                     testtrial = Feedback()
 
