@@ -432,9 +432,14 @@ while True:
 timer = core.CountdownTimer(10)
 nKeys = 0
 maxExamples = 4
+examplesLeft = 4
+
+# Add a bigger while loop outside of this that counts down from 4 examples, and the timer is in the smaller while loop? And within the while loop,
+# it breaks if you get to the yes no screen, and goes to the larger istance of the while loop Wait this might not work because you want to keep your key presses
+# Start timer each time
 
 
-while True:
+while examplesLeft > 0: # while examplesLeft < maxExamples
 
      # Time runs out, but in this state only works if you are clicking things
     if timer.getTime() < 0:
@@ -486,10 +491,15 @@ while True:
 
             win.flip()
 
+            # Continue providing examples
             if allKeys[0] == 'space' and testtrial.cursor_loc == 0:
+                event.clearEvents()
+
+                examplesLeft -= 1  # decrease by one example
+                timer.reset()
                 break
 
-            event.clearEvents()
+
 
         core.wait(2.0)
 
@@ -521,6 +531,7 @@ while True:
 
                     win.flip(clearBuffer=True)
 
+                    # End of time block
                     msg.draw()
 
                     win.flip()
@@ -614,11 +625,15 @@ while True:
                         win.flip()
 
                         if allKeys[0] == 'space' and testtrial.cursor_loc == 0:
+
+                            examplesLeft -= 1  # decrease by one example
+                            timer.reset()
+                            event.clearEvents()
                             break
 
-                        event.clearEvents()
-
                     core.wait(2.0)
+
+
                 else:
                     trial.unselect()
                     # TODO: get rid of unselect
