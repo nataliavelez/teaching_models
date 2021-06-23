@@ -171,14 +171,51 @@ f.close()
 
 probs = {}
 
+# Fix issue with rotation AHHHHHHHH OMG it starts counting from the top
+
+# OMG ROWS AND COLUMNS ARE SWITCHED AHHAAHHAHAsdklfjlkj how to switch this.... .
+
+# honestly we can just do a numpy transpose kind of situation
+
+# transpose matrices to make indexing easier
+probstest = []
+for prob in problems_raw:
+    thisprob = {}
+    for h, val in prob.items():  # h is ABCD index
+        thismtx = np.array(val)
+        thismtxT = thismtx.T
+        thisprob[h] = thismtxT.tolist()
+    probstest.append(thisprob)
+
+problems_raw = probstest
+
 for prob_idx, prob in enumerate(problems_raw):
     probs[prob_idx] = {}
     for h, val in prob.items():
         probs[prob_idx][h] = {}
         for row_idx, row in enumerate(val):
             probs[prob_idx][h][row_idx] = {}
-            for col_idx, value in enumerate(row):
+            for col_idx, value in enumerate(reversed(row)):
                 probs[prob_idx][h][row_idx][col_idx] = value
+
+
+# Fix issue with dictionary order
+
+# for idx, p in probs.items():
+#     for k, v in p.items():
+#         probs[idx][k] = {key: v[key] for key in [0, 1, 2, 3, 4, 5]}
+
+# Switch x and y
+
+# probstest = {}
+
+# for idx, p in probs.items():
+#     probstest[idx] = {}
+#     for col_idx, v in p.items():
+#         probstest[idx][]
+#         for row_idx, val in v.items():
+#             probstest[row_idx][col_idx] =
+
 
 # %% Test first teaching problem
 
@@ -366,7 +403,7 @@ notext = visual.TextStim(win=win,
 
 
 
-#%%
+#%% actual stuff to run
 
 win = visual.Window([800, 600], monitor="test", units="norm", color='black')
 
@@ -431,8 +468,8 @@ for k, v in probs.items():
         xs = np.linspace(x_low, x_high, 6)
         ys = np.linspace(y_low, y_high, 6)
 
-        for y in ys:
-            for x in xs:
+        for x in xs:
+            for y in ys:
                 xys.append((x, y))
 
         hs.append(visual.ElementArrayStim(win=win,
