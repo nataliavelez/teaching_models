@@ -187,6 +187,17 @@ for prob in problems_raw:
         thisprob[h] = thismtxT.tolist()
     probstest.append(thisprob)
 
+
+# Testing problem 27 because idk why it has 7 columns...
+# prob_27 = problems_raw[27]
+# thisprob = {}
+# for h, val in prob_27.items():  # h is ABCD index
+#     thismtx = np.array(val)
+#     thismtxT = thismtx.T
+#     thisprob[h] = thismtxT.tolist()
+
+
+###
 problems_raw = probstest
 
 for prob_idx, prob in enumerate(problems_raw):
@@ -210,8 +221,8 @@ for subj_id, runs in enumerate(subj_list):
 # %%
 
 # Access problem based on subject and run:
-subj_id = 7
-run_idx = 5
+subj_id = 0
+run_idx = 1
 probs = prepared_probs[subj_id][run_idx]
 
 
@@ -410,7 +421,7 @@ for prob_idx, v in probs.items():
                              height=.07)
 
 
-    timer = core.CountdownTimer(7)
+    timer = core.CountdownTimer(15)
     nKeys = 0
     maxExamples = 4
     examplesLeft = 4
@@ -455,7 +466,7 @@ for prob_idx, v in probs.items():
             testtrial = Feedback()
 
             len_allKeys1 = 0
-            timer1 = core.CountdownTimer(5)
+            timer1 = core.CountdownTimer(7)
 
             # The issue with the timer is that the items arent in
             while True: # Move on and stay buttons
@@ -526,7 +537,7 @@ for prob_idx, v in probs.items():
                 len_allKeys1 = len(allKeys1)
                 event.clearEvents()
 
-            core.wait(2.0)
+            core.wait(1.0)
 
         if problemFinished:
                 break
@@ -609,7 +620,7 @@ for prob_idx, v in probs.items():
                         testtrial = Feedback()
 
                         len_allKeys1 = 0
-                        timer1 = core.CountdownTimer(5)
+                        timer1 = core.CountdownTimer(7)
 
 
                         while True: # Move on and stay buttons
@@ -696,7 +707,7 @@ for prob_idx, v in probs.items():
 
 
 
-                        core.wait(2.0)
+                        core.wait(1.0)
                         # testtrial = Feedback()
 
                         # len_allKeys1 = 0
