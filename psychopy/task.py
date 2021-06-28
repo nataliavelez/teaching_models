@@ -331,9 +331,12 @@ for prob_idx, v in probs.items():
     # Start instance of trial
     trial = Move()
 
+    # Make study text
+    studytext = visual.TextStim(win, text='Study problem', pos=(0, -.72))
+
     # Make canvas
     canv_sq_size = .08
-    canvas_loc = [0, -.45]
+    canvas_loc = [0, -.22]
 
     x_low, x_high = canvas_loc[0] - 3*canv_sq_size, canvas_loc[0] + 3*canv_sq_size
     y_low, y_high = canvas_loc[1] - 4*canv_sq_size, canvas_loc[1] + 4*canv_sq_size
@@ -415,21 +418,118 @@ for prob_idx, v in probs.items():
                            pos=(0, .3),
                            height=.09)
 
+
+
+    # New continue screen text
+    leftarrow = visual.TextStim(win=win, text='\u2190', pos=(-.5, 0),
+                                font="Menlo", height=.3)
+    rightarrow = visual.TextStim(win=win, text='\u2192', pos=(.5, 0),
+                                 font="Menlo", height=.3)
+
     yestext = visual.TextStim(win=win,
-                              text="Provide another example",
-                              pos=(-.5, -.2),
-                              height=.07)
+                          text="Yes",
+                          pos=(-.5, -.26),
+                          height=.1)
 
     notext = visual.TextStim(win=win,
-                             text="Next problem",
-                             pos=(.5, -.2),
-                             height=.07)
+                             text="No",
+                             pos=(.5, -.26),
+                             height=.1)
 
 
     timer = core.CountdownTimer(15)
     nKeys = 0
     maxExamples = 4
     examplesLeft = 4
+
+
+
+    # Wait time at beginning of each problem
+
+    studytext.draw()
+
+    # Draw canvas
+    for i in range(6):
+        for j in range(6):
+            rects[i][j].draw()
+
+    # Draw top stuff
+    for h in hs:
+        h.draw()
+
+    true_h_border.draw()
+
+    # Draw ABCD
+    for lett in lets:
+        lett.draw()
+
+    win.flip()
+    core.wait(7.0)
+
+    # Countdown
+
+    onesec = visual.TextStim(win=win, text='3', pos=(0, -.88))
+
+    onesec.draw()
+    studytext.draw()
+
+    for i in range(6):
+        for j in range(6):
+            rects[i][j].draw()
+
+    for h in hs:
+        h.draw()
+
+    true_h_border.draw()
+
+    for lett in lets:
+        lett.draw()
+
+    win.flip()
+
+    core.wait(1.0)
+
+    twosec = visual.TextStim(win=win, text='2', pos=(0, -.88))
+
+    twosec.draw()
+    studytext.draw()
+
+    for i in range(6):
+        for j in range(6):
+            rects[i][j].draw()
+
+    for h in hs:
+        h.draw()
+
+    true_h_border.draw()
+
+    for lett in lets:
+        lett.draw()
+
+    win.flip()
+
+    core.wait(1.0)
+
+
+    threesec = visual.TextStim(win=win, text='1', pos=(0, -.88))
+    threesec.draw()
+    studytext.draw()
+
+    for i in range(6):
+        for j in range(6):
+            rects[i][j].draw()
+
+    for h in hs:
+        h.draw()
+
+    true_h_border.draw()
+
+    for lett in lets:
+        lett.draw()
+
+    win.flip()
+
+    core.wait(1.0)
 
     # starting cursor color
     if test_prob['h1'][0][0] == 0:
@@ -438,6 +538,7 @@ for prob_idx, v in probs.items():
     else:
         rects[0][0].lineColor = (72, 160, 248)  # blue
         rects[0][0].lineWidth = 15
+
 
     while examplesLeft > 0:
 
@@ -460,6 +561,8 @@ for prob_idx, v in probs.items():
         for lett in lets:
             lett.draw()
 
+
+
         win.flip()
 
          # Time runs out, but in this state only works if you are clicking things
@@ -467,8 +570,6 @@ for prob_idx, v in probs.items():
 
             if examplesLeft == 1:
                 break # TODO: move on to next teaching problem
-
-            testtrial = Feedback()
 
             len_allKeys1 = 0
             timer1 = core.CountdownTimer(7)
@@ -478,8 +579,8 @@ for prob_idx, v in probs.items():
 
 
 
-                move_on.draw()
-                stay.draw()
+                leftarrow.draw()
+                rightarrow.draw()
                 cont.draw()
                 yestext.draw()
                 notext.draw()
@@ -491,52 +592,32 @@ for prob_idx, v in probs.items():
                 allKeys1 = event.getKeys()
 
                 if timer1.getTime() < 0:
-                    testtrial.select()
-                        # timer1.reset()
-                    if testtrial.cursor_loc == 1:
+                    event.clearEvents()
+
+                    examplesLeft -= 1  # decrease by one example
+                    timer.reset()
+                    timer1.reset()
+                    break
+
+
+                if len(allKeys1) > len_allKeys1:
+
+                    thisKey = allKeys1[-1]
+                    if thisKey == "left":
+
+                        event.clearEvents()
+
+                        examplesLeft -= 1  # decrease by one example
+                        timer.reset()
+                        timer1.reset()
+                        break
+
+                    elif thisKey == "right":
+
                         examplesLeft == 0
                         problemFinished = True
                         break
 
-                    if testtrial.cursor_loc == 0:
-                        event.clearEvents()
-
-                        examplesLeft -= 1  # decrease by one example
-                        timer.reset()
-                        timer1.reset()
-                        break
-
-                if len(allKeys1) > len_allKeys1:
-                    thisKey = allKeys1[-1]
-
-                    if thisKey == 'left':
-                        testtrial.left()
-                        stay.setBackgroundColor([.122, .297, .486]) # blue
-                        move_on.setBackgroundColor(None) # black
-                    if thisKey == 'right':
-                        testtrial.right()
-                        move_on.setBackgroundColor([.122, .297, .486]) # blue
-                        stay.setBackgroundColor(None) # black
-                    if (thisKey == 'space') or (timer1.getTime() < 0):
-                        testtrial.select()
-                        # timer1.reset()
-                        if testtrial.cursor_loc == 1:
-                            examplesLeft == 0
-                            problemFinished = True
-                            break
-
-
-
-                    #win.flip()
-
-                    # Continue providing examples
-                    if ((thisKey == 'space') or (timer1.getTime() < 0)) and (testtrial.cursor_loc == 0):
-                        event.clearEvents()
-
-                        examplesLeft -= 1  # decrease by one example
-                        timer.reset()
-                        timer1.reset()
-                        break
 
 
                 len_allKeys1 = len(allKeys1)
@@ -631,9 +712,8 @@ for prob_idx, v in probs.items():
                         while True: # Move on and stay buttons
 
 
-
-                            move_on.draw()
-                            stay.draw()
+                            leftarrow.draw()
+                            rightarrow.draw()
                             cont.draw()
                             yestext.draw()
                             notext.draw()
@@ -642,74 +722,39 @@ for prob_idx, v in probs.items():
 
                             win.flip()
 
-                            if timer1.getTime() < 0:
+                            allKeys1 = event.getKeys()
 
-                                testtrial.select()
-                                    # timer1.reset()
-                                if testtrial.cursor_loc == 1:
+                            if timer1.getTime() < 0:
+                                event.clearEvents()
+
+                                examplesLeft -= 1  # decrease by one example
+                                timer.reset()
+                                timer1.reset()
+                                break
+
+
+                            if len(allKeys1) > len_allKeys1:
+
+                                thisKey = allKeys1[-1]
+                                if thisKey == "left":
+
+                                    event.clearEvents()
+
+                                    examplesLeft -= 1  # decrease by one example
+                                    timer.reset()
+                                    timer1.reset()
+                                    break
+
+                                elif thisKey == "right":
+
                                     examplesLeft == 0
                                     problemFinished = True
                                     break
 
-                                if testtrial.cursor_loc == 0:
-                                    event.clearEvents()
-
-                                    examplesLeft -= 1  # decrease by one example
-                                    timer.reset()
-                                    timer1.reset()
-                                    break
 
 
-                            allKeys1 = event.getKeys()
-                            len_allkeys1 = len(allKeys1)
-                            if len(allKeys1) > len_allKeys1:
-                                thisKey = allKeys1[-1]
-
-                            # For reference:
-                            # stay = visual.TextBox(window=win,
-                            #  text='No',
-                            #  font_size=30,
-                            #  font_color=[1,-1,-1],
-                            #  background_color=[-1,-1,-1,1],
-                            #  border_color=[-1,-1,1,1],
-                            #  border_stroke_width=4,
-                            #  textgrid_shape=[3,1], # 20 cols (20 chars wide)
-                            #                          # by 4 rows (4 lines of text)
-                            #  pos=(.5, 0)
-                            #  )
-
-                            #for thisKey in allKeys:
-                                if thisKey == 'left':
-                                    testtrial.left()
-                                    stay.setBackgroundColor([.122, .297, .486]) # blue
-                                    move_on.setBackgroundColor(None) # black
-                                if thisKey == 'right':
-                                    testtrial.right()
-                                    move_on.setBackgroundColor([.122, .297, .486]) # blue
-                                    stay.setBackgroundColor(None) # black
-                                if thisKey == 'space' or timer1.getTime() < 0:
-                                    testtrial.select()
-
-                                    if testtrial.cursor_loc == 1:
-                                        examplesLeft == 0
-                                        problemFinished = True
-                                        break
-                                    # timer1.reset()
-                                    # if testtrial.cursor_loc == 0:
-                                    #     break
-
-
-
-                                #win.flip()
-
-                                # Continue providing examples
-                                if (thisKey == 'space' or timer1.getTime() < 0) and testtrial.cursor_loc == 0:
-                                    event.clearEvents()
-
-                                    examplesLeft -= 1  # decrease by one example
-                                    timer.reset()
-                                    timer1.reset()
-                                    break
+                            len_allKeys1 = len(allKeys1)
+                            event.clearEvents()
 
 
 
