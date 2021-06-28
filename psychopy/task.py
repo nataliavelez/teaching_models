@@ -97,72 +97,7 @@ class Feedback:
         #     win.close()
         #     core.quit()
 
-# %% feedback
-win = visual.Window([800, 600], monitor="test", units="norm", color='black')
 
-
-# stay = visual.TextBox(window=win,
-#                          text='Yes',
-#                          font_size=30,
-#                          #colorSpace='rgb255',
-#                          opacity=1,
-#                          font_color=[1, 1, 1],
-#                          #background_color=[0, 0, 0],
-#                          border_color=[1, 1, 1],
-#                          border_stroke_width=4,
-#                          textgrid_shape=[3,1], # 20 cols (20 chars wide)
-#                                                  # by 4 rows (4 lines of text)
-#                          pos=(-.5, 0)
-#                          )
-
-# # visual.TextBox(window=win,
-# #                          text='Yes',
-# #                          pos=(-.5, 0),
-# #                          color_space='rgb',
-# #                          units='norm',
-# #                          size=(.4,.2))
-
-# move_on = visual.TextBox(window=win,
-#                          text='No',
-#                          font_size=30,
-#                          opacity=1,
-#                          #colorSpace='rgb255',
-#                          font_color=[1, 1, 1],
-#                          #background_color=[0, 0, 0],
-#                          border_color=[1, 1, 1],
-#                          border_stroke_width=4,
-#                          textgrid_shape=[3,1], # 20 cols (20 chars wide)
-#                                                  # by 4 rows (4 lines of text)
-#                          pos=(.5, 0)
-#                          )
-
-# buttons = [move_on, stay]
-#%%
-
-# testtrial = Feedback()
-
-
-# allKeys = event.waitKeys()
-
-# for thisKey in allKeys:
-#     if thisKey == 'left':
-#         testtrial.left()
-#         move_on.setBackgroundColor('green')
-#     if thisKey == 'right':
-#         testtrial.right()
-#         stay.setBackgroundColor('green')
-#     if thisKey == 'enter':
-#         buttons[testtrial.cursor_loc].setBackgroundColor('blue')
-#         testtrial.select()
-
-
-
-
-
-## Make feedback screen
-
-
-# cursor_loc and selected tells you where you are re: the examples
 # %% Import and format teaching problems
 
 f = open('/Users/aliciachen/Dropbox/teaching_models/problems.json')
@@ -226,7 +161,7 @@ for subj_id, runs in enumerate(subj_list):
 # %%
 
 # Access problem based on subject and run:
-subj_id = 0
+subj_id = 1
 run_idx = 1
 probs = prepared_probs[subj_id][run_idx]
 
@@ -437,12 +372,13 @@ for prob_idx, v in probs.items():
                              height=.1)
 
 
-    timer = core.CountdownTimer(15)
+
     nKeys = 0
     maxExamples = 4
     examplesLeft = 4
 
-
+    # fixation cross
+    iti = visual.TextStim(win=win, text="+", height=.2)
 
     # Wait time at beginning of each problem
 
@@ -464,7 +400,7 @@ for prob_idx, v in probs.items():
         lett.draw()
 
     win.flip()
-    core.wait(7.0)
+    core.wait(15.0) # Study time
 
     # Countdown
 
@@ -539,7 +475,7 @@ for prob_idx, v in probs.items():
         rects[0][0].lineColor = (72, 160, 248)  # blue
         rects[0][0].lineWidth = 15
 
-
+    timer = core.CountdownTimer(15)
     while examplesLeft > 0:
 
         # Start by drawing the stuff we start with
@@ -623,7 +559,7 @@ for prob_idx, v in probs.items():
                 len_allKeys1 = len(allKeys1)
                 event.clearEvents()
 
-            core.wait(1.0)
+            core.wait(0.5)
 
         if problemFinished:
                 break
@@ -654,13 +590,13 @@ for prob_idx, v in probs.items():
                         rects[trial.cursor_loc[0]][trial.cursor_loc[1]].fillColor = 'blue'
 
                         win.flip(clearBuffer=True)
-
+                        core.wait(random.uniform(1, 3)) # ISI: black screen
                         # End of time block
                         msg.draw()
 
                         win.flip()
 
-                        core.wait(2.0)
+                        core.wait(3)
 
                         win.flip(clearBuffer=True)
 
@@ -678,7 +614,9 @@ for prob_idx, v in probs.items():
 
                         win.flip()
 
-                        core.wait(1.0)
+                        core.wait(1.7) # blank canvas before example shown to learner
+
+                        # make selected example appear
 
                         for h in hs:
                             h.draw()
@@ -688,26 +626,28 @@ for prob_idx, v in probs.items():
                         for lett in lets:
                             lett.draw()
 
-                        learner_rects[trial.cursor_loc[0]][trial.cursor_loc[1]].fillColor=(72, 160, 248)
+                        learner_rects[trial.cursor_loc[0]][trial.cursor_loc[1]].fillColor=(161, 103, 201) # fillColor=(72, 160, 248)
 
                         for i in range(6):
                             for j in range(6):
                                 learner_rects[i][j].draw()
 
                         win.flip(clearBuffer=True)
-                        core.wait(3.0)
-
+                        core.wait(4)
+                        win.flip(clearBuffer=True)
+                        core.wait(random.uniform(1, 3))
 
                         if examplesLeft == 1:
                             break  # TODO: move on to next teaching problem
 
                         # Feedback screen
                         event.clearEvents()
-                        testtrial = Feedback()
 
                         len_allKeys1 = 0
                         timer1 = core.CountdownTimer(7)
 
+                        # previous learner rects are the same color
+                        learner_rects[trial.cursor_loc[0]][trial.cursor_loc[1]].fillColor=(72, 160, 248)
 
                         while True: # Move on and stay buttons
 
@@ -756,76 +696,15 @@ for prob_idx, v in probs.items():
                             len_allKeys1 = len(allKeys1)
                             event.clearEvents()
 
+                        win.flip(clearBuffer=True)
+
+                        iti.draw()
+                        win.flip()
+                        core.wait(random.uniform(5, 7))
+
+                        # ITI
 
 
-                        core.wait(1.0)
-                        # testtrial = Feedback()
-
-                        # len_allKeys1 = 0
-                        # timer2 = core.CountdownTimer(10)
-
-                        # while True: # Move on and stay buttons
-
-
-
-                        #     move_on.draw()
-                        #     stay.draw()
-                        #     cont.draw()
-                        #     yestext.draw()
-                        #     notext.draw()
-
-
-
-                        #     win.flip()
-
-                        #     allKeys1 = event.getKeys()
-                        #     if len(allKeys1) > len_allKeys1:
-                        #         thisKey = allKeys1[-1]
-                        #     len_allKeys1 = len(allKeys1)
-                        #     # For reference:
-                        #     # stay = visual.TextBox(window=win,
-                        #     #  text='No',
-                        #     #  font_size=30,
-                        #     #  font_color=[1,-1,-1],
-                        #     #  background_color=[-1,-1,-1,1],
-                        #     #  border_color=[-1,-1,1,1],
-                        #     #  border_stroke_width=4,
-                        #     #  textgrid_shape=[3,1], # 20 cols (20 chars wide)
-                        #     #                          # by 4 rows (4 lines of text)
-                        #     #  pos=(.5, 0)
-                        #     #  )
-
-                        #     #for thisKey in allKeys:
-                        #     if thisKey == 'left':
-                        #         testtrial.left()
-                        #         stay.setBackgroundColor([.122, .297, .486]) # blue
-                        #         move_on.setBackgroundColor(None) # black
-                        #     if thisKey == 'right':
-                        #         testtrial.right()
-                        #         move_on.setBackgroundColor([.122, .297, .486]) # blue
-                        #         stay.setBackgroundColor(None) # black
-                        #     if thisKey == 'space' or timer2.getTime() < 0:
-                        #         testtrial.select()
-                        #         # timer1.reset()
-                        #         # if testtrial.cursor_loc == 0:
-                        #         #     break
-
-
-
-                        #     #win.flip()
-
-                        #     # Continue providing examples
-                        #     if (thisKey == 'space' or timer2.getTime() < 0) and testtrial.cursor_loc == 0:
-                        #         event.clearEvents()
-
-                        #         examplesLeft -= 1  # decrease by one example
-                        #         timer.reset()
-                        #         timer2.reset()
-                        #         break
-
-
-
-                        # core.wait(2.0)
 
 
                     else:
@@ -839,6 +718,7 @@ for prob_idx, v in probs.items():
                 core.quit()
 
             print(thisKey)
+
 
             if problemFinished:
                 break
@@ -897,6 +777,12 @@ for prob_idx, v in probs.items():
         #event.clearEvents()
 
         nKeys = len(allKeys)
+
+    win.flip(clearBuffer=True)
+
+    iti.draw()
+    win.flip()
+    core.wait(random.uniform(5, 7))
 
 
 endofrun = visual.TextStim(win, text="End of run", height=0.25)
