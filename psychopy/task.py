@@ -211,6 +211,11 @@ for prob_idx, prob in enumerate(problems_raw):
 
 
 # Load problems per run from subj lists of lists for prepared problem file
+
+f = open('subj_list.json')
+subj_list = json.load(f)
+f.close()
+
 prepared_probs = {}
 
 for subj_id, runs in enumerate(subj_list):
@@ -244,7 +249,7 @@ for prob_idx, v in probs.items():
     # Shuffle order of four images
     random.shuffle(prob_idxs)
     test_prob_shuffled = {i: test_prob[i] for i in prob_idxs}
-    true_h_idx = prob_idxs.index('A')  # Extract order of index
+    true_h_idx = prob_idxs.index('h1')  # Extract order of index
     data[prob_idx]['true_h_idx'] = true_h_idx
 
     # Flatten problem to figure out colors; make color lists
@@ -342,7 +347,7 @@ for prob_idx, v in probs.items():
     for i in range(6):
         rects[i] = {}
         for j in range(6):
-            if test_prob['A'][i][j] == 0:
+            if test_prob['h1'][i][j] == 0:
                 rects[i][j] = visual.Rect(win=win,
                                           fillColor=(94, 93, 95),  # dark gray
                                           colorSpace='rgb255',
@@ -427,7 +432,7 @@ for prob_idx, v in probs.items():
     examplesLeft = 4
 
     # starting cursor color
-    if test_prob['A'][0][0] == 0:
+    if test_prob['h1'][0][0] == 0:
         rects[0][0].lineColor = (218, 60, 37)  # red
         rects[0][0].lineWidth = 15
     else:
@@ -560,7 +565,7 @@ for prob_idx, v in probs.items():
             elif thisKey == 'down':
                 trial.down()
             elif thisKey == 'space':
-                if test_prob['A'][trial.cursor_loc[0]][trial.cursor_loc[1]] == 0:
+                if test_prob['h1'][trial.cursor_loc[0]][trial.cursor_loc[1]] == 0:
                     print('error :( cant pick negative examples')
                 else:
                     if trial.squares[trial.cursor_loc[0]][trial.cursor_loc[1]] == 0:
@@ -654,8 +659,9 @@ for prob_idx, v in probs.items():
                                     timer1.reset()
                                     break
 
-                            len_allkeys1 = len(allKeys1)
+
                             allKeys1 = event.getKeys()
+                            len_allkeys1 = len(allKeys1)
                             if len(allKeys1) > len_allKeys1:
                                 thisKey = allKeys1[-1]
 
@@ -797,7 +803,7 @@ for prob_idx, v in probs.items():
                 try:
                     rects[old_cursor_loc[0]][old_cursor_loc[1]].lineColor = 'none'
 
-                    if test_prob['A'][old_cursor_loc[0]][old_cursor_loc[1]] == 0:
+                    if test_prob['h1'][old_cursor_loc[0]][old_cursor_loc[1]] == 0:
                         rects[old_cursor_loc[0]][old_cursor_loc[1]].fillColor = (94, 93, 95)  # dark gray
                     else:
                         rects[old_cursor_loc[0]][old_cursor_loc[1]].fillColor = (214, 214, 214)  # light gray
@@ -812,7 +818,7 @@ for prob_idx, v in probs.items():
             for i in range(6):
                 for j in range(6):
                     try:
-                        if test_prob['A'][i][j] == 0 and trial.cursor_loc == [i, j]:
+                        if test_prob['h1'][i][j] == 0 and trial.cursor_loc == [i, j]:
                             rects[i][j].lineColor = (218, 60, 37)  # red
                             rects[i][j].lineWidth = 15
                         if trial.squares[i][j] == 1:

@@ -5,9 +5,14 @@ Created on Thu Jun 24 08:27:47 2021
 
 @author: aliciachen
 """
-import random
 
-# Assign random order of problems to each subject
+### Make list of lists of randomized problem indices for each subject
+
+import random
+import json
+
+random.seed(8)
+
 
 nSubjects = 30
 nRuns = 8
@@ -29,3 +34,10 @@ for sub in range(nSubjects):
 
     for run in range(nRuns):
         subj_list[sub][run] = probs_div[run]
+
+# %% Save to json file
+
+subj_list_json = json.dumps(subj_list)
+jsonFile = open("subj_list.json", "w")
+jsonFile.write(subj_list_json)
+jsonFile.close()
