@@ -86,18 +86,6 @@ class Feedback:
             self.exs_left -= 1  # Move on to selecting next block
 
 
-        # elif self.cursor_loc == 1:
-        #     # TODO: Move on to next teaching problem
-        #     win.close()
-        #     core.quit()
-        #     break
-
-        # if self.exs_left == 0:
-        #     # TODO: move on to next teaching problem
-        #     win.close()
-        #     core.quit()
-
-
 # %% Import and format teaching problems
 
 f = open('/Users/aliciachen/Dropbox/teaching_models/problems.json')
@@ -106,13 +94,7 @@ f.close()
 
 probs = {}
 
-# Fix issue with rotation AHHHHHHHH OMG it starts counting from the top
-
-# OMG ROWS AND COLUMNS ARE SWITCHED AHHAAHHAHAsdklfjlkj how to switch this.... .
-
-# honestly we can just do a numpy transpose kind of situation
-
-# transpose matrices to make indexing easier
+# transpose matrices to make indexing easier (index from bottom left)
 probstest = []
 for prob in problems_raw:
     thisprob = {}
@@ -121,15 +103,6 @@ for prob in problems_raw:
         thismtxT = thismtx.T
         thisprob[h] = thismtxT.tolist()
     probstest.append(thisprob)
-
-
-# Testing problem 27 because idk why it has 7 columns...
-# prob_27 = problems_raw[27]
-# thisprob = {}
-# for h, val in prob_27.items():  # h is ABCD index
-#     thismtx = np.array(val)
-#     thismtxT = thismtx.T
-#     thisprob[h] = thismtxT.tolist()
 
 
 ###
@@ -158,15 +131,14 @@ for subj_id, runs in enumerate(subj_list):
     for run_idx, run in enumerate(runs):
         prepared_probs[subj_id][run_idx] = {i: probs[i] for i in run}
 
-# %%
+# %% Access subject and run
 
-# Access problem based on subject and run:
 subj_id = 1
 run_idx = 1
 probs = prepared_probs[subj_id][run_idx]
 
 
-#%% actual stuff to run
+#%% Task
 
 data = {}
 
@@ -375,12 +347,12 @@ for prob_idx, v in probs.items():
 
     nKeys = 0
     maxExamples = 4
-    examplesLeft = 4
+    examplesLeft = maxExamples
 
     # fixation cross
     iti = visual.TextStim(win=win, text="+", height=.2)
 
-    # Wait time at beginning of each problem
+    ## Draw initial study screen
 
     studytext.draw()
 
@@ -467,7 +439,8 @@ for prob_idx, v in probs.items():
 
     core.wait(1.0)
 
-    # starting cursor color
+
+    # Starting cursor color for start of interactivity
     if test_prob['h1'][0][0] == 0:
         rects[0][0].lineColor = (218, 60, 37)  # red
         rects[0][0].lineWidth = 15
@@ -476,10 +449,8 @@ for prob_idx, v in probs.items():
         rects[0][0].lineWidth = 15
 
     timer = core.CountdownTimer(15)
+
     while examplesLeft > 0:
-
-        # Start by drawing the stuff we start with
-
 
 
         # Draw canvas
@@ -505,12 +476,12 @@ for prob_idx, v in probs.items():
         if timer.getTime() < 0:
 
             if examplesLeft == 1:
-                break # TODO: move on to next teaching problem
+                break
 
             len_allKeys1 = 0
             timer1 = core.CountdownTimer(7)
 
-            # The issue with the timer is that the items arent in
+
             while True: # Move on and stay buttons
 
 
@@ -563,9 +534,11 @@ for prob_idx, v in probs.items():
 
         if problemFinished:
                 break
+
         #nKeys = 0
         allKeys = event.getKeys()
         allowed_keys = ['left', 'right', 'up', 'down', 'enter', 'q']
+
         # Canvas part
 
         old_cursor_loc = trial.cursor_loc.copy()
@@ -635,10 +608,11 @@ for prob_idx, v in probs.items():
                         win.flip(clearBuffer=True)
                         core.wait(4)
                         win.flip(clearBuffer=True)
-                        core.wait(random.uniform(1, 3))
+
+                        core.wait(random.uniform(1, 3)) # ISI
 
                         if examplesLeft == 1:
-                            break  # TODO: move on to next teaching problem
+                            break
 
                         # Feedback screen
                         event.clearEvents()
@@ -698,13 +672,10 @@ for prob_idx, v in probs.items():
 
                         win.flip(clearBuffer=True)
 
+                        # ITI and fixation cross
                         iti.draw()
                         win.flip()
                         core.wait(random.uniform(5, 7))
-
-                        # ITI
-
-
 
 
                     else:
@@ -712,7 +683,7 @@ for prob_idx, v in probs.items():
                         # TODO: get rid of unselect
 
                 # TODO: Display a message for selecting negative examples?
-                #break
+
             elif thisKey == 'q':
                 win.close()
                 core.quit()
@@ -735,7 +706,7 @@ for prob_idx, v in probs.items():
                     rects[trial.cursor_loc[0]][trial.cursor_loc[1]].lineColor = (72, 160, 248)  # blue
                     rects[trial.cursor_loc[0]][trial.cursor_loc[1]].lineWidth = 15
                 except (IndexError, KeyError):
-                    print('index out of range')  # TODO: change to a visual stim
+                    print('index out of range')  # TODO: change to a visual stim?
 
 
 
@@ -752,7 +723,7 @@ for prob_idx, v in probs.items():
                                 rects[i][j].lineColor = (218, 60, 37)  # red
                                 rects[i][j].lineWidth = 15
                     except (IndexError, KeyError):
-                        print('index out of range')  # TODO: change to a visual stim
+                        print('index out of range')  # TODO: change to a visual stim?
 
 
 
