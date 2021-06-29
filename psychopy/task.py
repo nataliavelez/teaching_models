@@ -66,26 +66,6 @@ class Move(Canvas):
             self.cursor_loc[1] = y
 
 
-class Feedback:
-
-    def __init__(self):
-        self.cursor_loc = 0  # 0 for left, 1 for right
-        self.exs_left = 4  # 4 possible examples to select per teaching prob
-        self.selected = False
-
-    def left(self):
-        self.cursor_loc = 0
-
-    def right(self):
-        self.cursor_loc = 1
-
-    def select(self):
-        self.selected = True
-
-        if self.cursor_loc == 0:
-            self.exs_left -= 1  # Move on to selecting next block
-
-
 # %% Import and format teaching problems
 
 f = open('/Users/aliciachen/Dropbox/teaching_models/problems.json')
@@ -138,13 +118,31 @@ run_idx = 1
 probs = prepared_probs[subj_id][run_idx]
 
 
-#%% Task
+# %% Data
 
-data = {}
+expt_data = []
+
+trial_data = {
+    'trial_type': trial_type,
+    'trial_no': trial_no,
+    'problem': [prob_idx, v],  # v is the actual prob dict from looping thru probs.items()
+    'onset': onset,
+    'dur': dur
+    }
+
+# %% Task
+
+expt_data = []
+
+exptTimer = core.Clock()
+
+trial_no = 0
 
 win = visual.Window([800, 600], monitor="test", units="norm", color='black')
 
 for prob_idx, v in probs.items():
+
+    prob_dict = v
 
     data[prob_idx] = {}
     data[prob_idx]['prob'] = v
@@ -185,7 +183,6 @@ for prob_idx, v in probs.items():
     locs = [[-.75, .5], [-.25, .5], [.25, .5], [.75, .5]]
 
     # Draw
-    #win = visual.Window([800, 600], monitor="test", units="norm", color='black')
 
     # Make hypotheses
     sq_size = .05
@@ -213,7 +210,6 @@ for prob_idx, v in probs.items():
                                           elementMask=None,
                                           elementTex=None,
                                           sizes=(.05, .0666)))
-
 
     # Highlight true hypothesis
     true_h_border = visual.Rect(win,
@@ -352,6 +348,13 @@ for prob_idx, v in probs.items():
     # fixation cross
     iti = visual.TextStim(win=win, text="+", height=.2)
 
+    ######## 1. Study
+
+    trial_type = 'study'
+    trial_no += 1
+    problem = [prob_idx, prob_dict]
+    onset = exptTimer.getTime()
+
     ## Draw initial study screen
 
     studytext.draw()
@@ -372,7 +375,7 @@ for prob_idx, v in probs.items():
         lett.draw()
 
     win.flip()
-    core.wait(15.0) # Study time
+    core.wait(2.9) # Study time, change to 15 later
 
     # Countdown
 
@@ -439,6 +442,21 @@ for prob_idx, v in probs.items():
 
     core.wait(1.0)
 
+    # get dur, save data from study block
+    dur = exptTimer.getTime() - onset
+
+    trial_data = {
+    'trial_type': trial_type,
+    'trial_no': trial_no,
+    'problem': problem,
+    'onset': onset,
+    'dur': dur
+    }
+
+    expt_data.append(trial_data)
+
+
+
 
     # Starting cursor color for start of interactivity
     if test_prob['h1'][0][0] == 0:
@@ -475,6 +493,13 @@ for prob_idx, v in probs.items():
          # Time runs out, but in this state only works if you are clicking things
         if timer.getTime() < 0:
 
+            # Start of CONT block
+            trial_type = 'cont'
+            trial_no += 1
+            problem = [prob_idx, prob_dict]
+            onset = exptTimer.getTime()
+
+
             if examplesLeft == 1:
                 break
 
@@ -499,9 +524,32 @@ for prob_idx, v in probs.items():
                 allKeys1 = event.getKeys()
 
                 if timer1.getTime() < 0:
+
+
+
+                    examplesLeft -= 1
+
+                    # Data
+
+                    dur = exptTimer.getTime() - onset
+
+                    trial_data = {
+                    'trial_type': trial_type,
+                    'trial_no': trial_no,
+                    'problem': problem,
+                    'onset': onset,
+                    'dur': dur,
+                    'response': True,
+                    'rt': None,
+                    'remaining': examplesLeft
+                    }
+
+                    expt_data.append(trial_data)
+
+                    # Other stuff
                     event.clearEvents()
 
-                    examplesLeft -= 1  # decrease by one example
+                      # decrease by one example
                     timer.reset()
                     timer1.reset()
                     break
@@ -515,13 +563,49 @@ for prob_idx, v in probs.items():
                         event.clearEvents()
 
                         examplesLeft -= 1  # decrease by one example
+
+                        # Data
+                        dur = exptTimer.getTime() - onset
+
+                        trial_data = {
+                        'trial_type': trial_type,
+                        'trial_no': trial_no,
+                        'problem': problem,
+                        'onset': onset,
+                        'dur': dur,
+                        'response': True,
+                        'rt': dur,
+                        'remaining': examplesLeft
+                        }
+
+                        expt_data.append(trial_data)
+
+
                         timer.reset()
                         timer1.reset()
                         break
 
                     elif thisKey == "right":
 
-                        examplesLeft == 0
+                        examplesLeft = 0
+
+                        # Data
+                        dur = exptTimer.getTime() - onset
+
+                        trial_data = {
+                        'trial_type': trial_type,
+                        'trial_no': trial_no,
+                        'problem': problem,
+                        'onset': onset,
+                        'dur': dur,
+                        'response': False,
+                        'rt': dur,
+                        'remaining': examplesLeft
+                        }
+
+                        expt_data.append(trial_data)
+
+
                         problemFinished = True
                         break
 
@@ -623,16 +707,13 @@ for prob_idx, v in probs.items():
                         # previous learner rects are the same color
                         learner_rects[trial.cursor_loc[0]][trial.cursor_loc[1]].fillColor=(72, 160, 248)
 
-                        while True: # Move on and stay buttons
-
+                        while True:  # Move on and stay buttons
 
                             leftarrow.draw()
                             rightarrow.draw()
                             cont.draw()
                             yestext.draw()
                             notext.draw()
-
-
 
                             win.flip()
 
@@ -661,7 +742,7 @@ for prob_idx, v in probs.items():
 
                                 elif thisKey == "right":
 
-                                    examplesLeft == 0
+                                    examplesLeft = 0
                                     problemFinished = True
                                     break
 
@@ -726,7 +807,6 @@ for prob_idx, v in probs.items():
                         print('index out of range')  # TODO: change to a visual stim?
 
 
-
             # Draw canvas
             for i in range(6):
                 for j in range(6):
@@ -749,6 +829,7 @@ for prob_idx, v in probs.items():
 
         nKeys = len(allKeys)
 
+    # Between teaching problems
     win.flip(clearBuffer=True)
 
     iti.draw()
