@@ -117,21 +117,8 @@ subj_id = 1
 run_idx = 1
 probs = prepared_probs[subj_id][run_idx]
 
-
-# %% Data
-
-expt_data = []
-
-trial_data = {
-    'trial_type': trial_type,
-    'trial_no': trial_no,
-    'problem': [prob_idx, v],  # v is the actual prob dict from looping thru probs.items()
-    'onset': onset,
-    'dur': dur
-    }
-
 # %% Task
-
+data = [] # dete later
 expt_data = []
 
 exptTimer = core.Clock()
@@ -144,8 +131,8 @@ for prob_idx, v in probs.items():
 
     prob_dict = v
 
-    data[prob_idx] = {}
-    data[prob_idx]['prob'] = v
+    # data[prob_idx] = {}
+    # data[prob_idx]['prob'] = v
 
     problemFinished = False
     test_prob = v
@@ -155,7 +142,7 @@ for prob_idx, v in probs.items():
     random.shuffle(prob_idxs)
     test_prob_shuffled = {i: test_prob[i] for i in prob_idxs}
     true_h_idx = prob_idxs.index('h1')  # Extract order of index
-    data[prob_idx]['true_h_idx'] = true_h_idx
+    # data[prob_idx]['true_h_idx'] = true_h_idx
 
     # Flatten problem to figure out colors; make color lists
     colordict = {}
@@ -468,8 +455,26 @@ for prob_idx, v in probs.items():
 
     timer = core.CountdownTimer(15)
 
+    changeFlag = True
+
+    # Start
     while examplesLeft > 0:
 
+        if changeFlag == True:
+            # TODO: start Choose block
+            print('change block')
+            start_loc = trial.cursor_loc.copy()
+            moves = []
+            response = None
+            state = None
+            rt = None
+
+            trial_type = 'choose'
+            trial_no += 1
+            problem = [prob_idx, prob_dict]
+            onset = exptTimer.getTime()
+
+        changeFlag = False
 
         # Draw canvas
         for i in range(6):
@@ -492,6 +497,26 @@ for prob_idx, v in probs.items():
 
          # Time runs out, but in this state only works if you are clicking things
         if timer.getTime() < 0:
+
+            ## Save data from CHOOSE
+
+            dur = exptTimer.getTime() - onset
+
+            trial_data = {
+            'trial_type': trial_type,
+            'trial_no': trial_no,
+            'problem': problem,
+            'onset': onset,
+            'dur': dur,
+            'start_loc': start_loc,
+            'moves': moves,
+            'response': None,
+            'state': trial.squares, # might need to change, include current or no
+            'rt': None
+            }
+
+            expt_data.append(trial_data)
+
 
             # Start of CONT block
             trial_type = 'cont'
@@ -552,6 +577,7 @@ for prob_idx, v in probs.items():
                       # decrease by one example
                     timer.reset()
                     timer1.reset()
+                    changeFlag = True
                     break
 
 
@@ -583,11 +609,12 @@ for prob_idx, v in probs.items():
 
                         timer.reset()
                         timer1.reset()
+                        changeFlag = True
                         break
 
                     elif thisKey == "right":
 
-                        examplesLeft = 0
+                        #examplesLeft = 0
 
                         # Data
                         dur = exptTimer.getTime() - onset
@@ -607,6 +634,7 @@ for prob_idx, v in probs.items():
 
 
                         problemFinished = True
+                        changeFlag = True
                         break
 
 
@@ -617,7 +645,7 @@ for prob_idx, v in probs.items():
             core.wait(0.5)
 
         if problemFinished:
-                break
+                break # This is a probably better way of doing it than incrementing examplesLeft and waiting for the loop to quit
 
         #nKeys = 0
         allKeys = event.getKeys()
@@ -632,30 +660,72 @@ for prob_idx, v in probs.items():
 
             if thisKey == 'left':
                 trial.left()
+                clickable = False if (trial.squares[trial.cursor_loc[0]][trial.cursor_loc[1]] == 1) or (test_prob['h1'][trial.cursor_loc[0]][trial.cursor_loc[1]] == 0) else True
+                moves.append([thisKey, exptTimer.getTime(), clickable])
             elif thisKey == 'right':
                 trial.right()
+                clickable = False if (trial.squares[trial.cursor_loc[0]][trial.cursor_loc[1]] == 1) or (test_prob['h1'][trial.cursor_loc[0]][trial.cursor_loc[1]] == 0) else True
+                moves.append([thisKey, exptTimer.getTime(), clickable])
             elif thisKey == 'up':
                 trial.up()
+                clickable = False if (trial.squares[trial.cursor_loc[0]][trial.cursor_loc[1]] == 1) or (test_prob['h1'][trial.cursor_loc[0]][trial.cursor_loc[1]] == 0) else True
+                moves.append([thisKey, exptTimer.getTime(), clickable])
             elif thisKey == 'down':
                 trial.down()
+                clickable = False if (trial.squares[trial.cursor_loc[0]][trial.cursor_loc[1]] == 1) or (test_prob['h1'][trial.cursor_loc[0]][trial.cursor_loc[1]] == 0) else True
+                moves.append([thisKey, exptTimer.getTime(), clickable])
             elif thisKey == 'space':
                 if test_prob['h1'][trial.cursor_loc[0]][trial.cursor_loc[1]] == 0:
                     print('error :( cant pick negative examples')
                 else:
                     if trial.squares[trial.cursor_loc[0]][trial.cursor_loc[1]] == 0:
+
+                        old_state = trial.squares  # For saving
+
                         trial.select()
+
+                        new_state = trial.squares  # For saving
+
+
+                        selected_coords = trial.cursor_loc  # For saving
+
+                        ## Save data from CHOOSE
+
+                        dur = exptTimer.getTime() - onset
+
+                        trial_data = {
+                        'trial_type': trial_type,
+                        'trial_no': trial_no,
+                        'problem': problem,
+                        'onset': onset,
+                        'dur': dur,
+                        'start_loc': start_loc,
+                        'moves': moves,
+                        'response': selected_coords,
+                        'state': new_state, # might need to change, include current or no
+                        'rt': moves[-1][1] - onset
+                        }
+
+                        expt_data.append(trial_data)
+
+                        ######
+
                         rects[trial.cursor_loc[0]][trial.cursor_loc[1]].fillColor = 'blue'
 
-                        win.flip(clearBuffer=True)
-                        core.wait(random.uniform(1, 3)) # ISI: black screen
                         # End of time block
                         msg.draw()
 
-                        win.flip()
+                        win.flip(clearBuffer=True)
 
-                        core.wait(3)
+                        core.wait(2)
 
                         win.flip(clearBuffer=True)
+                        core.wait(random.uniform(1, 3)) # ISI: black screen
+
+
+
+
+                        #win.flip(clearBuffer=True)
 
                         for h in hs:
                             h.draw()
@@ -669,9 +739,14 @@ for prob_idx, v in probs.items():
                             for j in range(6):
                                 learner_rects[i][j].draw()
 
-                        win.flip()
+                        win.flip() # Onset of canvas shown to learner
 
-                        core.wait(1.7) # blank canvas before example shown to learner
+                        trial_type = 'present'
+                        trial_no += 1
+                        problem = [prob_idx, prob_dict]
+                        onset = exptTimer.getTime()
+
+                        core.wait(2.0) # blank canvas before example shown to learner
 
                         # make selected example appear
 
@@ -690,7 +765,30 @@ for prob_idx, v in probs.items():
                                 learner_rects[i][j].draw()
 
                         win.flip(clearBuffer=True)
-                        core.wait(4)
+
+                        exOnset = exptTimer.getTime()
+
+                        core.wait(4)  # Amt of time new square is presesnted to learner
+
+                        ## Save data
+
+                        dur = exptTimer.getTime() - onset
+
+                        trial_data = {
+                        'trial_type': trial_type,
+                        'trial_no': trial_no,
+                        'problem': problem,
+                        'onset': onset,
+                        'dur': dur,
+                        'old_state': old_state,
+                        'new_state': new_state,
+                        'selected_coords': selected_coords,
+                        'ex_onset': exOnset
+                        }
+
+                        expt_data.append(trial_data)
+
+                        ##
                         win.flip(clearBuffer=True)
 
                         core.wait(random.uniform(1, 3)) # ISI
@@ -707,7 +805,17 @@ for prob_idx, v in probs.items():
                         # previous learner rects are the same color
                         learner_rects[trial.cursor_loc[0]][trial.cursor_loc[1]].fillColor=(72, 160, 248)
 
-                        while True:  # Move on and stay buttons
+
+                        # Another start of CONT
+
+                        trial_type = 'cont'
+                        trial_no += 1
+                        problem = [prob_idx, prob_dict]
+                        onset = exptTimer.getTime()
+
+                        while True:
+
+
 
                             leftarrow.draw()
                             rightarrow.draw()
@@ -715,16 +823,42 @@ for prob_idx, v in probs.items():
                             yestext.draw()
                             notext.draw()
 
+
+
                             win.flip()
 
                             allKeys1 = event.getKeys()
 
                             if timer1.getTime() < 0:
+
+
+
+                                examplesLeft -= 1
+
+                                # Data
+
+                                dur = exptTimer.getTime() - onset
+
+                                trial_data = {
+                                'trial_type': trial_type,
+                                'trial_no': trial_no,
+                                'problem': problem,
+                                'onset': onset,
+                                'dur': dur,
+                                'response': True,
+                                'rt': None,
+                                'remaining': examplesLeft
+                                }
+
+                                expt_data.append(trial_data)
+
+                                # Other stuff
                                 event.clearEvents()
 
-                                examplesLeft -= 1  # decrease by one example
+                                  # decrease by one example
                                 timer.reset()
                                 timer1.reset()
+                                changeFlag = True
                                 break
 
 
@@ -736,14 +870,52 @@ for prob_idx, v in probs.items():
                                     event.clearEvents()
 
                                     examplesLeft -= 1  # decrease by one example
+
+                                    # Data
+                                    dur = exptTimer.getTime() - onset
+
+                                    trial_data = {
+                                    'trial_type': trial_type,
+                                    'trial_no': trial_no,
+                                    'problem': problem,
+                                    'onset': onset,
+                                    'dur': dur,
+                                    'response': True,
+                                    'rt': dur,
+                                    'remaining': examplesLeft
+                                    }
+
+                                    expt_data.append(trial_data)
+
+
                                     timer.reset()
                                     timer1.reset()
+                                    changeFlag = True
                                     break
 
                                 elif thisKey == "right":
 
-                                    examplesLeft = 0
+                                    #examplesLeft = 0
+
+                                    # Data
+                                    dur = exptTimer.getTime() - onset
+
+                                    trial_data = {
+                                    'trial_type': trial_type,
+                                    'trial_no': trial_no,
+                                    'problem': problem,
+                                    'onset': onset,
+                                    'dur': dur,
+                                    'response': False,
+                                    'rt': dur,
+                                    'remaining': examplesLeft
+                                    }
+
+                                    expt_data.append(trial_data)
+
+
                                     problemFinished = True
+                                    changeFlag = True
                                     break
 
 
@@ -824,7 +996,7 @@ for prob_idx, v in probs.items():
 
             win.flip()
 
-        data[prob_idx]['canvas'] = trial.squares
+
         #event.clearEvents()
 
         nKeys = len(allKeys)
@@ -845,3 +1017,19 @@ core.wait(3.3)
 
 win.close()
 core.quit()
+
+
+#%%
+
+# Save to json file
+import datetime
+out_tstamp = datetime.datetime.now().strftime('%y%m%d_%H%M')
+out_fname = "/Users/aliciachen/Dropbox/teaching_models/psychopy/test_data/%s_run%i_%s.json" % (subj_id, run_idx, out_tstamp)
+
+# actual_out_fname = "sub-%s_task_teaching_run%i_beh.json"
+subj_list_json = json.dumps(subj_list)
+jsonFile = open(out_fname, "w")
+jsonFile.write(subj_list_json)
+jsonFile.close()
+
+# TODO: change file naming later
