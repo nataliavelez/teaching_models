@@ -99,8 +99,8 @@ for prob_idx, prob in enumerate(problems_raw):
 
 
 # Load problems per run from subj lists of lists for prepared problem file
-
-f = open('subj_list.json')
+# f = open('subj_list.json')
+f = open('../subj_list.json')
 subj_list = json.load(f)
 f.close()
 
@@ -114,18 +114,49 @@ for subj_id, runs in enumerate(subj_list):
 # %% Access subject and run
 
 subj_id = 1
-run_idx = 1
+run_idx = 2
 probs = prepared_probs[subj_id][run_idx]
 
 # %% Task
 data = [] # dete later
 expt_data = []
 
+key_mapping = {
+    'left': '1',
+    'right': '4',
+    'up': '2',
+    'down': '3',
+    'space': '0'
+}
+
+##
+win = visual.Window([800, 600], monitor="test", units="norm", color='black')
+#win = visual.Window(size=[1280, 700], fullscr=True, screen=1, winType='pyglet', color='black')
+
+iti = visual.TextStim(win=win, text="+", height=.2)
+
+waitTriggerText = visual.TextStim(win, text="Waiting for scanner trigger...")
+waitTriggerText.draw()
+
+win.flip()
+
+while True:
+    trigger = event.waitKeys()
+    print(trigger)
+    if trigger[0] == 'equal':
+        break
+
 exptTimer = core.Clock()
 
-trial_no = 0
+iti.draw()
+win.flip()
 
-win = visual.Window([800, 600], monitor="test", units="norm", color='black')
+
+core.wait(10)
+
+trial_no = -1
+event.clearEvents()
+
 
 for prob_idx, v in probs.items():
 
@@ -362,7 +393,7 @@ for prob_idx, v in probs.items():
         lett.draw()
 
     win.flip()
-    core.wait(2.9) # Study time, change to 15 later
+    core.wait(27) # Study time, change to 15 later
 
     # Countdown
 
@@ -453,7 +484,7 @@ for prob_idx, v in probs.items():
         rects[0][0].lineColor = (72, 160, 248)  # blue
         rects[0][0].lineWidth = 15
 
-    timer = core.CountdownTimer(15)
+    timer = core.CountdownTimer(8)
 
     changeFlag = True
 
@@ -529,7 +560,7 @@ for prob_idx, v in probs.items():
                 break
 
             len_allKeys1 = 0
-            timer1 = core.CountdownTimer(7)
+            timer1 = core.CountdownTimer(2)
 
 
             while True: # Move on and stay buttons
@@ -584,7 +615,7 @@ for prob_idx, v in probs.items():
                 if len(allKeys1) > len_allKeys1:
 
                     thisKey = allKeys1[-1]
-                    if thisKey == "left":
+                    if thisKey == key_mapping['space']:
 
                         event.clearEvents()
 
@@ -612,7 +643,7 @@ for prob_idx, v in probs.items():
                         changeFlag = True
                         break
 
-                    elif thisKey == "right":
+                    elif thisKey == key_mapping['right']:
 
                         #examplesLeft = 0
 
@@ -649,7 +680,8 @@ for prob_idx, v in probs.items():
 
         #nKeys = 0
         allKeys = event.getKeys()
-        allowed_keys = ['left', 'right', 'up', 'down', 'enter', 'q']
+        #allowed_keys = ['left', 'right', 'up', 'down', 'enter', 'q']
+
 
         # Canvas part
 
@@ -658,23 +690,23 @@ for prob_idx, v in probs.items():
         if len(allKeys) > nKeys:
             thisKey = allKeys[-1]
 
-            if thisKey == 'left':
+            if thisKey == key_mapping['left']:
                 trial.left()
                 clickable = False if (trial.squares[trial.cursor_loc[0]][trial.cursor_loc[1]] == 1) or (test_prob['h1'][trial.cursor_loc[0]][trial.cursor_loc[1]] == 0) else True
                 moves.append([thisKey, exptTimer.getTime(), clickable])
-            elif thisKey == 'right':
+            elif thisKey == key_mapping['right']:
                 trial.right()
                 clickable = False if (trial.squares[trial.cursor_loc[0]][trial.cursor_loc[1]] == 1) or (test_prob['h1'][trial.cursor_loc[0]][trial.cursor_loc[1]] == 0) else True
                 moves.append([thisKey, exptTimer.getTime(), clickable])
-            elif thisKey == 'up':
+            elif thisKey == key_mapping['up']:
                 trial.up()
                 clickable = False if (trial.squares[trial.cursor_loc[0]][trial.cursor_loc[1]] == 1) or (test_prob['h1'][trial.cursor_loc[0]][trial.cursor_loc[1]] == 0) else True
                 moves.append([thisKey, exptTimer.getTime(), clickable])
-            elif thisKey == 'down':
+            elif thisKey == key_mapping['down']:
                 trial.down()
                 clickable = False if (trial.squares[trial.cursor_loc[0]][trial.cursor_loc[1]] == 1) or (test_prob['h1'][trial.cursor_loc[0]][trial.cursor_loc[1]] == 0) else True
                 moves.append([thisKey, exptTimer.getTime(), clickable])
-            elif thisKey == 'space':
+            elif thisKey == key_mapping['space']:
                 if test_prob['h1'][trial.cursor_loc[0]][trial.cursor_loc[1]] == 0:
                     print('error :( cant pick negative examples')
                 else:
@@ -717,10 +749,10 @@ for prob_idx, v in probs.items():
 
                         win.flip(clearBuffer=True)
 
-                        core.wait(2)
+                        core.wait(random.uniform(1,3))
 
                         win.flip(clearBuffer=True)
-                        core.wait(random.uniform(1, 3)) # ISI: black screen
+                        #core.wait(random.uniform(1, 3)) # ISI: black screen
 
 
 
@@ -746,7 +778,7 @@ for prob_idx, v in probs.items():
                         problem = [prob_idx, prob_dict]
                         onset = exptTimer.getTime()
 
-                        core.wait(2.0) # blank canvas before example shown to learner
+                        core.wait(0.5) # blank canvas before example shown to learner
 
                         # make selected example appear
 
@@ -758,7 +790,8 @@ for prob_idx, v in probs.items():
                         for lett in lets:
                             lett.draw()
 
-                        learner_rects[trial.cursor_loc[0]][trial.cursor_loc[1]].fillColor=(161, 103, 201) # fillColor=(72, 160, 248)
+                        # Show example to learner
+                        learner_rects[trial.cursor_loc[0]][trial.cursor_loc[1]].fillColor=	(254, 223, 0) # fillColor=(72, 160, 248)
 
                         for i in range(6):
                             for j in range(6):
@@ -800,14 +833,13 @@ for prob_idx, v in probs.items():
                         event.clearEvents()
 
                         len_allKeys1 = 0
-                        timer1 = core.CountdownTimer(7)
+                        timer1 = core.CountdownTimer(2)
 
                         # previous learner rects are the same color
                         learner_rects[trial.cursor_loc[0]][trial.cursor_loc[1]].fillColor=(72, 160, 248)
 
 
                         # Another start of CONT
-
                         trial_type = 'cont'
                         trial_no += 1
                         problem = [prob_idx, prob_dict]
@@ -865,7 +897,7 @@ for prob_idx, v in probs.items():
                             if len(allKeys1) > len_allKeys1:
 
                                 thisKey = allKeys1[-1]
-                                if thisKey == "left":
+                                if thisKey == key_mapping['space']:
 
                                     event.clearEvents()
 
@@ -893,7 +925,7 @@ for prob_idx, v in probs.items():
                                     changeFlag = True
                                     break
 
-                                elif thisKey == "right":
+                                elif thisKey == key_mapping['right']:
 
                                     #examplesLeft = 0
 
@@ -947,7 +979,7 @@ for prob_idx, v in probs.items():
             if problemFinished:
                 break
 
-            if thisKey != 'space':
+            if thisKey != key_mapping['space']:
 
                 try:
                     rects[old_cursor_loc[0]][old_cursor_loc[1]].lineColor = 'none'
@@ -1009,11 +1041,11 @@ for prob_idx, v in probs.items():
     core.wait(random.uniform(5, 7))
 
 
-endofrun = visual.TextStim(win, text="End of run", height=0.25)
-endofrun.draw()
+# endofrun = visual.TextStim(win, text="End of run", height=0.25)
+iti.draw()
 win.flip()
 
-core.wait(3.3)
+core.wait(10)
 
 win.close()
 core.quit()

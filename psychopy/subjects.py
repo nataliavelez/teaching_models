@@ -35,9 +35,3 @@ for sub in range(nSubjects):
     for run in range(nRuns):
         subj_list[sub][run] = probs_div[run]
 
-# %% Save to json file
-
-subj_list_json = json.dumps(subj_list)
-jsonFile = open("subj_list.json", "w")
-jsonFile.write(subj_list_json)
-jsonFile.close()
