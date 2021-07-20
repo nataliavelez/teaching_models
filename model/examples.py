@@ -83,9 +83,9 @@ class Problem:
 
         self.possible_exs_by_step = possible_exs
 
-        
-    def make_init_df(self): 
-        """make initial df for each step"""
+
+    def literal(self): 
+        """make initial df for each step (literal h|d)"""
 
         def isConsistent(h_i, ex):
             """Check if ex (list of tuples) is consistent with selected hypothesis h"""
@@ -103,27 +103,52 @@ class Problem:
         df_0_step2 = pd.DataFrame(index=pd.MultiIndex.from_tuples(self.possible_exs_by_step[1]), columns=columns)
         df_0_step3 = pd.DataFrame(index=pd.MultiIndex.from_tuples(self.possible_exs_by_step[2]), columns=columns)
         
-        dfs = [df_0_step1, df_0_step2, df_0_step3]
+        self.init_dfs = [df_0_step1, df_0_step2, df_0_step3]
 
         # Fill dataframes with 1 if selected examples are consistent
         for n in range(self.k): 
             for ex in self.possible_exs_by_step[n]: 
                 for idx, col_name in enumerate(columns): 
                     if isConsistent(self.hs[idx], ex): 
-                        dfs[n].loc[ex, col_name] = 1
+                        self.init_dfs[n].loc[ex, col_name] = 1
                     else: 
-                        dfs[n].loc[ex, col_name] = 0
+                        self.init_dfs[n].loc[ex, col_name] = 0
 
-        self.df_0_step1 = df_0_step1
-        self.df_0_step2 = df_0_step2
-        self.df_0_step3 = df_0_step3
+        def normalize_cols(df): 
+            df = df.div(df.sum(axis=1).replace(0, np.nan), axis=0)
+            df = df.fillna(0)
+            return df 
 
+        # TODO: take this out of self? 
+        self.hGd_0_step1 = normalize_cols(df_0_step1)
+        self.hGd_0_step2 = normalize_cols(df_0_step2)
+        self.hGd_0_step3 = normalize_cols(df_0_step3)
 
-    def iterate(self): 
-        """iterate over model"""
-        pass
+        # Generate P(h|d) for literal learner
+        self.hGd_lit = [normalize_cols(df_0_step1), normalize_cols(df_0_step2), normalize_cols(df_0_step3)]
 
+        # Generate P(d|h) for literal learner
+        self.dGh_lit = [i.div(i.sum(axis=0), axis=1) for i in self.hGd_lit]
+        
     
+    def pragmatic(self, nIter): 
+
+        hGd_prag = []
+        dGh_prag = []
+
+        for h in self.hGd_lit: 
+            df_h = h 
+
+            for _ in range(nIter):
+                df_d = df_h.div(df_h.sum(axis=0).replace(0, np.nan), axis=1)  # P(d|h)
+                df_h = df_d.div(df_d.sum(axis=1).replace(0, np.nan), axis=0)  # P(h|d)
+
+            hGd_prag.append(df_h.fillna(0))
+            dGh_prag.append(df_d.fillna(0))
+
+        self.hGd_prag = hGd_prag
+        self.dGh_prag = dGh_prag
+
 
 
     
@@ -132,7 +157,6 @@ abc = Problem(all_problems, 3)
 abc.view()
 abc.selected_examples([(1, 1), (2, 1), (3, 1)])
 abc.possible_exs_by_step
-abc.make_init_df()
-abc.df_0_step1
-abc.df_0_step2
-abc.df_0_step3
+abc.literal()
+abc.hGd_lit[1]
+abc.pragmatic(250)
