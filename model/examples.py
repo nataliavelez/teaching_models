@@ -130,6 +130,7 @@ class Problem:
         # Generate P(d|h) for literal learner
         self.dGh_lit = [i.div(i.sum(axis=0), axis=1) for i in self.hGd_lit]
         
+        return self.hGd_lit, self.dGh_lit
     
     def pragmatic(self, nIter): 
 
@@ -149,14 +150,27 @@ class Problem:
         self.hGd_prag = hGd_prag
         self.dGh_prag = dGh_prag
 
+        return self.hGd_prag, self.dGh_prag
 
+    def heatmap(self): 
+        # TODO 
+        pass
+    
+    def plots(self): 
+        # TODO: conditioned h\d plots 
+        pass
 
+    def metrics(self): 
+
+        # TODO: d|h entropy 
+        pass
     
 # Testing
 abc = Problem(all_problems, 3)
 abc.view()
 abc.selected_examples([(1, 1), (2, 1), (3, 1)])
-abc.possible_exs_by_step
 abc.literal()
-abc.hGd_lit[1]
 abc.pragmatic(250)
+
+# TODO: loop through all pilot problems and add model predictions to each 
+# TODO: add log likelihoods to analysis dataframe
