@@ -28,7 +28,7 @@ class Problem:
         self.h1, self.h2, self.h3, self.h4 = [self.problem_df[i].tolist() for i in range(self.shape_[0])]
         self.hs = [self.h1, self.h2, self.h3, self.h4]
 
-        self.k = 3  # max number of examples
+        self.k = 4  # max number of examples
 
     def view(self): 
         """View problem"""
@@ -46,7 +46,7 @@ class Problem:
 
     def selected_examples(self, exs): 
         """
-        Store size 3 tuple of coords of participant's selected examples
+        Store size k tuple of coords of participant's selected examples
         Find and store possible examples at each step
 
         Output: list (each step) of list of tuples of possible coordinates
@@ -81,6 +81,15 @@ class Problem:
         
         possible_exs.append(step3_exs)
 
+        # Fourth step
+        step4_exs = []
+        for col in range(self.shape_[1]): 
+            for row in range(self.shape_[2]): 
+                if (self.h1[col][row] == 1) and ((col, row) != self.exs[0]) and ((col, row) != self.exs[1]) and ((col, row) != self.exs[2]): 
+                    step4_exs.append((self.exs[0], self.exs[1], self.exs[2], (col, row)))
+        
+        possible_exs.append(step4_exs)
+
         self.possible_exs_by_step = possible_exs
 
 
@@ -102,8 +111,9 @@ class Problem:
         df_0_step1 = pd.DataFrame(index=pd.MultiIndex.from_tuples(self.possible_exs_by_step[0]), columns=columns)
         df_0_step2 = pd.DataFrame(index=pd.MultiIndex.from_tuples(self.possible_exs_by_step[1]), columns=columns)
         df_0_step3 = pd.DataFrame(index=pd.MultiIndex.from_tuples(self.possible_exs_by_step[2]), columns=columns)
-        
-        self.init_dfs = [df_0_step1, df_0_step2, df_0_step3]
+        df_0_step4 = pd.DataFrame(index=pd.MultiIndex.from_tuples(self.possible_exs_by_step[3]), columns=columns)
+
+        self.init_dfs = [df_0_step1, df_0_step2, df_0_step3, df_0_step4]
 
         # Fill dataframes with 1 if selected examples are consistent
         for n in range(self.k): 
@@ -119,21 +129,25 @@ class Problem:
             df = df.fillna(0)
             return df 
 
+        def normalize_rows(df): 
+            df = df.div(df.sum(axis=0).replace(0, np.nan), axis=1)
+            df = df.fillna(0)
+            return df 
+
         # TODO: take this out of self? 
         self.hGd_0_step1 = normalize_cols(df_0_step1)
         self.hGd_0_step2 = normalize_cols(df_0_step2)
         self.hGd_0_step3 = normalize_cols(df_0_step3)
+        self.hGd_0_step4 = normalize_cols(df_0_step4)
 
         # Generate P(h|d) for literal learner
-        self.hGd_lit = [normalize_cols(df_0_step1), normalize_cols(df_0_step2), normalize_cols(df_0_step3)]
+        self.hGd_lit = [normalize_cols(df_0_step1), normalize_cols(df_0_step2), normalize_cols(df_0_step3), normalize_cols(df_0_step4)]
+        self.dGh_lit = [normalize_rows(df_0_step1), normalize_rows(df_0_step2), normalize_rows(df_0_step3), normalize_rows(df_0_step4)]
 
-        # Generate P(d|h) for literal learner
-        self.dGh_lit = [i.div(i.sum(axis=0), axis=1) for i in self.hGd_lit]
-        
         return self.hGd_lit, self.dGh_lit
     
     def pragmatic(self, nIter): 
-
+        """return pragmatic h|d and d|h"""
         hGd_prag = []
         dGh_prag = []
 
@@ -152,25 +166,14 @@ class Problem:
 
         return self.hGd_prag, self.dGh_prag
 
-    def heatmap(self): 
-        # TODO 
-        pass
-    
-    def plots(self): 
-        # TODO: conditioned h\d plots 
-        pass
-
-    def metrics(self): 
-
-        # TODO: d|h entropy 
-        pass
     
 # Testing
-abc = Problem(all_problems, 3)
-abc.view()
-abc.selected_examples([(1, 1), (2, 1), (3, 1)])
-abc.literal()
-abc.pragmatic(250)
+testprob = Problem(all_problems, 3)
+testprob.view()
+testprob.selected_examples([(1, 1), (2, 1), (3, 1), (4, 1)])
+_, _ = testprob.literal()
+_, _ = testprob.pragmatic(250)
 
 # TODO: loop through all pilot problems and add model predictions to each 
 # TODO: add log likelihoods to analysis dataframe
+# TODO: add exception for when selected examples aren't positive examples? 
