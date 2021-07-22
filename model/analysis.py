@@ -64,7 +64,7 @@ def predict(true_prob_idxs):
     """
     Loop over problem worker pairs 
     Make a list of model predictions for each problem worker pair for both lit and prag 
-    Add model predictions to 
+    Add model predictions + metrics to dataframe
     """
     df_expt1_grouped = gen_example_sequence(df_expt1)
     df_expt2_grouped = gen_example_sequence(df_expt2)
@@ -73,7 +73,9 @@ def predict(true_prob_idxs):
     for df in dfs_grouped: 
         
         # Add empty columns to df
-        newcolnames = ['h1Gd_lit', 'dGh1_lit', 'h1Gd_prag', 'dGh1_prag']
+        newcolnames = ['h1Gd_lit', 'H_lit', 'KL_lit', 'dGh1_lit', 
+                        'h1Gd_prag', 'H_prag', 'KL_prag', 'dGh1_prag']
+        
         for i in newcolnames: 
             df[i] = pd.Series("", dtype=object)
             # df = df_expt2_grouped
@@ -87,7 +89,7 @@ def predict(true_prob_idxs):
                 
                 _, _ = prob.literal()
                 _, _ = prob.pragmatic(250)
-                a, b, c, d = prob.h1_probs() 
+                _ = prob.outputs() 
 
                 # Fix later: 
                 # hGd_lit, dGh_lit = prob.literal()
@@ -97,19 +99,23 @@ def predict(true_prob_idxs):
 
                 # print(df.dtypes)
                 print(row)
-                print(prob.h1Gd_lit)
+                # print(prob.h1Gd_lit)
                 df.at[row, 'h1Gd_lit'] = prob.h1Gd_lit
                 df.at[row, 'dGh1_lit'] = prob.dGh1_lit
                 df.at[row, 'h1Gd_prag'] = prob.h1Gd_prag
                 df.at[row, 'dGh1_prag'] = prob.dGh1_prag
+                df.at[row, 'H_lit'] = prob.H_lit
+                df.at[row, 'H_prag'] = prob.H_prag
+                df.at[row, 'KL_lit'] = prob.KL_lit
+                df.at[row, 'KL_prag'] = prob.KL_prag
                 # OMG IT WORKED
 
             except KeyboardInterrupt: 
-                return df
+                return dfs_grouped
 
     return dfs_grouped
 
-test = predict(true_prob_idxs)
+df_expt1_final, df_expt2_final = predict(true_prob_idxs)
 
 # TODO: for each worker problem pair, make a list of tuples of coords (selected examples) that we put in example 
 

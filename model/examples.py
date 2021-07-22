@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from scipy.stats import entropy
 import import_problems
 
 filename = '/Users/aliciachen/Dropbox/teaching_models/teaching_stimuli - all_examples (9).csv'
@@ -188,8 +189,14 @@ class Problem:
 
         return self.hGd_prag, self.dGh_prag
 
-    def h1_probs(self): 
-        """return true hypothesis probabilites for actual examples selected"""
+    def outputs(self): 
+        """
+        Generate model outputs (for literal and pragmatic model) to append to dataframe: 
+        - P(h|d) entropy
+        - P(h|d) KL divergence between sequential example selection
+        - Beliefs in true hypothesis h1 P(h1|d)
+        - Likelihoods P(d|h1)
+        """
         def extract_probs_from_exs(dfs): 
             probs = []  # Belief in h1
             all_probs = []  # Full belief distribution
@@ -203,26 +210,46 @@ class Problem:
                 all_probs.append(dfs[i].xs(idx))  # Append full belief distrubtion 
             return probs, all_probs  # test this later
 
-        def entropy(all_probs): 
-            """Given list of full belief dist, Create entropy list of size self.length_exs"""
-            pass
+        def calc_entropy(df): 
+            """Given list of lists of full belief dist, create entropy list of size self.length_exs"""
+            
+            _, all_probs = extract_probs_from_exs(df)
+            entropy_list = []
+            for prob in all_probs: 
+                entropy_list.append(entropy(prob))
+            
+            return entropy_list
         
-        def KL(all_probs): 
-            """Given list of full belief dist, create D_KL list of size self.length_exs (keep in mind uniform priors)"""
-            pass
+        def calc_KL(df): 
+            """Given list of lists full belief dist, create D_KL list of size self.length_exs (keep in mind uniform priors)"""
+            _, all_probs = extract_probs_from_exs(df)
 
-        outputs = [self.hGd_lit, self.dGh_lit, self.hGd_prag, self.dGh_prag]
+            prior = [[.25, .25, .25, .25]]
+            all_probs_w_prior = prior + all_probs
+            # print(all_probs_w_prior)
+            KL_list = []
+            for i in range(len(all_probs_w_prior)-1): 
+                KL_list.append(entropy(all_probs_w_prior[i+1], all_probs_w_prior[i]))
+            
+            return KL_list
 
-        probs_list = []
-
-        for output in outputs: 
-            probs = extract_probs_from_exs(output)
+        # Store P(h1|d) and P(d|h1)
+        model_outputs = [self.hGd_lit, self.dGh_lit, self.hGd_prag, self.dGh_prag]
+        probs_list = []      
+        for output in model_outputs: 
+            probs, all_probs = extract_probs_from_exs(output)
             # print(probs)
             probs_list.append(probs)
         
         [self.h1Gd_lit, self.dGh1_lit, self.h1Gd_prag, self.dGh1_prag] = probs_list 
 
-        return self.h1Gd_lit, self.dGh1_lit, self.h1Gd_prag, self.dGh1_prag
+        # store entropy and KL divergence
+        self.H_lit = calc_entropy(self.hGd_lit)
+        self.H_prag = calc_entropy(self.hGd_prag)
+        self.KL_lit = calc_KL(self.hGd_lit)
+        self.KL_prag = calc_KL(self.hGd_prag)
+        
+        return None
 
     
 # Testing
@@ -233,7 +260,7 @@ _, _ = testprob.literal()
 _, _ = testprob.pragmatic(250)
 
 
-a, b, c, d = testprob.h1_probs()
+_ = testprob.outputs()
 # TODO: loop through all pilot problems and add model predictions to each 
 # TODO: add log likelihoods to analysis dataframe
 # TODO: add exception for when selected examples aren't positive examples? 
