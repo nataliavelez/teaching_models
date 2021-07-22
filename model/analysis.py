@@ -3,9 +3,13 @@
 1. Calculate log likelihood for each participant's total + individual choices, for literal and pragmatic learner
 """
 import pandas as pd
-from examples import Problem
+import examples
+import import_problems
 
 # %% Load and prepare data
+
+filename = '/Users/aliciachen/Dropbox/teaching_models/teaching_stimuli - all_examples (9).csv'
+all_problems = import_problems.df_from_csv(filename)
 
 def load(expt1_filename, expt2_filename, true_prob_idxs): 
     """
@@ -34,6 +38,9 @@ def load(expt1_filename, expt2_filename, true_prob_idxs):
         # Add true problem index 
         df['true_prob_idx'] = df['problem'].apply(lambda x : true_prob_idxs[x])
 
+        # Group df by worker and problem tuple
+        df = df.set_index(['worker', 'true_prob_idx'], inplace=True) #['coords_idx'].apply(tuple).reset_index()
+
     return df_exp1, df_exp2
 
 
@@ -45,9 +52,74 @@ df_expt1, df_expt2 = load(expt1_filename, expt2_filename, true_prob_idxs)
 
 # %% 
 
-def predict(true_prob_idxs): 
-    """Make a dict of model predictions for each problem"""
+def gen_example_sequence(df): 
+    """
+    Given df, generate sequence of coords for each unique worker problem pair
+    Output df is sorted by ascending problem index
+    """
+    grouped = df.groupby(level=[0, 1])['coords'].apply(tuple).reset_index().set_index(['worker', 'true_prob_idx'])
+    return grouped 
 
+def predict(true_prob_idxs): 
+    """
+    Loop over problem worker pairs 
+    Make a list of model predictions for each problem worker pair for both lit and prag 
+    Add model predictions to 
+    """
+    df_expt1_grouped = gen_example_sequence(df_expt1)
+    df_expt2_grouped = gen_example_sequence(df_expt2)
+    dfs_grouped = [df_expt1_grouped, df_expt2_grouped]
+
+    for df in dfs_grouped: 
+        
+        # Add empty columns to df
+        newcolnames = ['h1Gd_lit', 'dGh1_lit', 'h1Gd_prag', 'dGh1_prag']
+        for i in newcolnames: 
+            df[i] = pd.Series("", dtype=object)
+            # df = df_expt2_grouped
+        
+        for row in df.index: 
+            try: 
+                idx = row[1]  # True problem index 
+                coords = df.loc[row, 'coords']
+                prob = examples.Problem(all_problems, idx)
+                prob.selected_examples(coords)
+                
+                _, _ = prob.literal()
+                _, _ = prob.pragmatic(250)
+                a, b, c, d = prob.h1_probs() 
+
+                # Fix later: 
+                # hGd_lit, dGh_lit = prob.literal()
+                # hGd_prag, dGh_prag = prob.pragmatic()
+                
+                # [df[i] for i in newcolnames] = [pd.Series("", dtype=object) for i in range(4)]
+
+                # print(df.dtypes)
+                print(row)
+                print(prob.h1Gd_lit)
+                df.at[row, 'h1Gd_lit'] = prob.h1Gd_lit
+                df.at[row, 'dGh1_lit'] = prob.dGh1_lit
+                df.at[row, 'h1Gd_prag'] = prob.h1Gd_prag
+                df.at[row, 'dGh1_prag'] = prob.dGh1_prag
+                # OMG IT WORKED
+
+            except KeyboardInterrupt: 
+                return df
+
+    return dfs_grouped
+
+test = predict(true_prob_idxs)
+
+# TODO: for each worker problem pair, make a list of tuples of coords (selected examples) that we put in example 
+
+# TODO: THen filter these examples from p(h|d) and p(d|h), add this to the data frame
+
+# testprob = Problem(all_problems, 3)
+# testprob.view()
+# testprob.selected_examples([(1, 1), (2, 1), (3, 1), (4, 1)])
+# _, _ = testprob.literal()
+# _, _ = testprob.pragmatic(250)
 
 # %% 
 

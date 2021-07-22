@@ -52,43 +52,51 @@ class Problem:
         Output: list (each step) of list of tuples of possible coordinates
         """
         self.exs = exs 
+        self.exs_length = len(exs)  # Store length of examples
         possible_exs = []
 
-        # First step
-        step1_exs = []
-        for col in range(self.shape_[1]): 
-            for row in range(self.shape_[2]): 
-                if self.h1[col][row] == 1: 
-                    step1_exs.append(((col, row),))
-        
-        possible_exs.append(step1_exs)
+        # Generate possible examples based on number examples participant selected
 
-        # Second step 
-        step2_exs = []
-        for col in range(self.shape_[1]): 
-            for row in range(self.shape_[2]): 
-                if self.h1[col][row] == 1 and (col, row) != self.exs[0]: 
-                    step2_exs.append((self.exs[0], (col, row)))
+        if self.exs_length >= 1: 
+            # First step
+            step1_exs = []
+            for col in range(self.shape_[1]): 
+                for row in range(self.shape_[2]): 
+                    if self.h1[col][row] == 1: 
+                        step1_exs.append(((col, row),))
+            
+            possible_exs.append(step1_exs)
 
-        possible_exs.append(step2_exs)
+        if self.exs_length >=2: 
+            # Second step 
+            step2_exs = []
+            for col in range(self.shape_[1]): 
+                for row in range(self.shape_[2]): 
+                    if self.h1[col][row] == 1 and (col, row) != self.exs[0]: 
+                        step2_exs.append((self.exs[0], (col, row)))
 
-        # Third step 
-        step3_exs = []
-        for col in range(self.shape_[1]): 
-            for row in range(self.shape_[2]): 
-                if (self.h1[col][row] == 1) and ((col, row) != self.exs[0]) and ((col, row) != self.exs[1]): 
-                    step3_exs.append((self.exs[0], self.exs[1], (col, row)))
-        
-        possible_exs.append(step3_exs)
+            possible_exs.append(step2_exs)
 
-        # Fourth step
-        step4_exs = []
-        for col in range(self.shape_[1]): 
-            for row in range(self.shape_[2]): 
-                if (self.h1[col][row] == 1) and ((col, row) != self.exs[0]) and ((col, row) != self.exs[1]) and ((col, row) != self.exs[2]): 
-                    step4_exs.append((self.exs[0], self.exs[1], self.exs[2], (col, row)))
-        
-        possible_exs.append(step4_exs)
+        if self.exs_length >= 3 : 
+            # Third step 
+            step3_exs = []
+            for col in range(self.shape_[1]): 
+                for row in range(self.shape_[2]): 
+                    if (self.h1[col][row] == 1) and ((col, row) != self.exs[0]) and ((col, row) != self.exs[1]): 
+                        step3_exs.append((self.exs[0], self.exs[1], (col, row)))
+            
+            # print(step3_exs)
+            possible_exs.append(step3_exs)
+
+        if self.exs_length >= 4: 
+            # Fourth step
+            step4_exs = []
+            for col in range(self.shape_[1]): 
+                for row in range(self.shape_[2]): 
+                    if (self.h1[col][row] == 1) and ((col, row) != self.exs[0]) and ((col, row) != self.exs[1]) and ((col, row) != self.exs[2]): 
+                        step4_exs.append((self.exs[0], self.exs[1], self.exs[2], (col, row)))
+            
+            possible_exs.append(step4_exs)
 
         self.possible_exs_by_step = possible_exs
 
@@ -108,15 +116,25 @@ class Problem:
         columns = ['h1', 'h2', 'h3', 'h4']
         
         # Initialize empty dataframes
-        df_0_step1 = pd.DataFrame(index=pd.MultiIndex.from_tuples(self.possible_exs_by_step[0]), columns=columns)
-        df_0_step2 = pd.DataFrame(index=pd.MultiIndex.from_tuples(self.possible_exs_by_step[1]), columns=columns)
-        df_0_step3 = pd.DataFrame(index=pd.MultiIndex.from_tuples(self.possible_exs_by_step[2]), columns=columns)
-        df_0_step4 = pd.DataFrame(index=pd.MultiIndex.from_tuples(self.possible_exs_by_step[3]), columns=columns)
 
-        self.init_dfs = [df_0_step1, df_0_step2, df_0_step3, df_0_step4]
+        self.init_dfs = []
+        if self.exs_length >= 1: 
+            df_0_step1 = pd.DataFrame(index=pd.MultiIndex.from_tuples(self.possible_exs_by_step[0]), columns=columns)
+            self.init_dfs.append(df_0_step1)
+        if self.exs_length >= 2: 
+            df_0_step2 = pd.DataFrame(index=pd.MultiIndex.from_tuples(self.possible_exs_by_step[1]), columns=columns)
+            self.init_dfs.append(df_0_step2)
+        if self.exs_length >= 3: 
+            df_0_step3 = pd.DataFrame(index=pd.MultiIndex.from_tuples(self.possible_exs_by_step[2]), columns=columns)
+            self.init_dfs.append(df_0_step3)
+        if self.exs_length >= 4: 
+            df_0_step4 = pd.DataFrame(index=pd.MultiIndex.from_tuples(self.possible_exs_by_step[3]), columns=columns)
+            self.init_dfs.append(df_0_step4)
+        
+        # self.init_dfs = [df_0_step1, df_0_step2, df_0_step3, df_0_step4]
 
         # Fill dataframes with 1 if selected examples are consistent
-        for n in range(self.k): 
+        for n in range(self.exs_length): 
             for ex in self.possible_exs_by_step[n]: 
                 for idx, col_name in enumerate(columns): 
                     if isConsistent(self.hs[idx], ex): 
@@ -134,15 +152,19 @@ class Problem:
             df = df.fillna(0)
             return df 
 
+        self.hGd_lit = [normalize_cols(df) for df in self.init_dfs]
+        self.dGh_lit = [normalize_rows(df) for df in self.init_dfs]
+
         # TODO: take this out of self? 
-        self.hGd_0_step1 = normalize_cols(df_0_step1)
-        self.hGd_0_step2 = normalize_cols(df_0_step2)
-        self.hGd_0_step3 = normalize_cols(df_0_step3)
-        self.hGd_0_step4 = normalize_cols(df_0_step4)
+        # self.hGd_0_step1 = normalize_cols(df_0_step1)
+        # self.hGd_0_step2 = normalize_cols(df_0_step2)
+        # self.hGd_0_step3 = normalize_cols(df_0_step3)
+        # self.hGd_0_step4 = normalize_cols(df_0_step4)
+
 
         # Generate P(h|d) for literal learner
-        self.hGd_lit = [normalize_cols(df_0_step1), normalize_cols(df_0_step2), normalize_cols(df_0_step3), normalize_cols(df_0_step4)]
-        self.dGh_lit = [normalize_rows(df_0_step1), normalize_rows(df_0_step2), normalize_rows(df_0_step3), normalize_rows(df_0_step4)]
+        # self.hGd_lit = [normalize_cols(df_0_step1), normalize_cols(df_0_step2), normalize_cols(df_0_step3), normalize_cols(df_0_step4)]
+        # self.dGh_lit = [normalize_rows(df_0_step1), normalize_rows(df_0_step2), normalize_rows(df_0_step3), normalize_rows(df_0_step4)]
 
         return self.hGd_lit, self.dGh_lit
     
@@ -166,14 +188,52 @@ class Problem:
 
         return self.hGd_prag, self.dGh_prag
 
+    def h1_probs(self): 
+        """return true hypothesis probabilites for actual examples selected"""
+        def extract_probs_from_exs(dfs): 
+            probs = []  # Belief in h1
+            all_probs = []  # Full belief distribution
+            #print(dfs)
+            for i, ex in enumerate(self.exs): 
+                idx = self.exs[:i+1]
+                # print(dfs[i])
+                # print(idx)
+                self.a = dfs[i]
+                probs.append(dfs[i].xs(idx)[0])  # What is this issue with tuple indexing? 
+                all_probs.append(dfs[i].xs(idx))  # Append full belief distrubtion 
+            return probs, all_probs  # test this later
+
+        def entropy(all_probs): 
+            """Given list of full belief dist, Create entropy list of size self.length_exs"""
+            pass
+        
+        def KL(all_probs): 
+            """Given list of full belief dist, create D_KL list of size self.length_exs (keep in mind uniform priors)"""
+            pass
+
+        outputs = [self.hGd_lit, self.dGh_lit, self.hGd_prag, self.dGh_prag]
+
+        probs_list = []
+
+        for output in outputs: 
+            probs = extract_probs_from_exs(output)
+            # print(probs)
+            probs_list.append(probs)
+        
+        [self.h1Gd_lit, self.dGh1_lit, self.h1Gd_prag, self.dGh1_prag] = probs_list 
+
+        return self.h1Gd_lit, self.dGh1_lit, self.h1Gd_prag, self.dGh1_prag
+
     
 # Testing
 testprob = Problem(all_problems, 3)
 testprob.view()
-testprob.selected_examples([(1, 1), (2, 1), (3, 1), (4, 1)])
+testprob.selected_examples(((1, 1), (2, 1), (3, 1), (4, 1)))
 _, _ = testprob.literal()
 _, _ = testprob.pragmatic(250)
 
+
+a, b, c, d = testprob.h1_probs()
 # TODO: loop through all pilot problems and add model predictions to each 
 # TODO: add log likelihoods to analysis dataframe
 # TODO: add exception for when selected examples aren't positive examples? 
