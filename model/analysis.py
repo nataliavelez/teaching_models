@@ -2,10 +2,11 @@
 0. Compare participants' confidence ratings against model p(h|d) for literal and pragmatic
 1. Calculate log likelihood for each participant's total + individual choices, for literal and pragmatic learner
 """
+import numpy as np
 import pandas as pd
 from seaborn.miscplot import palplot
 from seaborn.palettes import color_palette
-import examples
+# import examples
 import examples_full
 import import_problems
 
@@ -69,7 +70,7 @@ def gen_model_preds(true_prob_idxs):
         preds[idx] = examples_full.Problem(all_problems, idx)
         preds[idx].example_space()
         _, _ = preds[idx].literal()
-        _, _ = preds[idx].pragmatic(10)
+        _, _ = preds[idx].pragmatic(100)
     return preds
 
 def predict(preds): 
@@ -147,15 +148,6 @@ df_expt1_final, df_expt2_final = predict(preds)
 
 # TODO: THen filter these examples from p(h|d) and p(d|h), add this to the data frame
 
-# testprob = Problem(all_problems, 3)
-# testprob.view()
-# testprob.selected_examples([(1, 1), (2, 1), (3, 1), (4, 1)])
-# _, _ = testprob.literal()
-# _, _ = testprob.pragmatic(250)
-# %% to csv
-
-
-
 # %% add participant estimated posterior
 
 df_expt2_estimates = df_expt2.groupby(level=[0, 1])['posterior'].apply(list).reset_index().set_index(['worker', 'true_prob_idx'])
@@ -180,68 +172,105 @@ df_1_long = df_1.explode(column=['coords', 'h1Gd_lit', 'H_lit', 'KL_lit', 'dGh1_
 
 df_2_long = df_2.explode(column=['coords', 'h1Gd_lit', 'H_lit', 'KL_lit', 'dGh1_lit', 
         'h1Gd_prag', 'H_prag', 'KL_prag', 'dGh1_prag', 'posterior'])
+
+df_1 = df_1_long.reset_index()
+df_2 = df_2_long.reset_index()
+
+# Change object dtypes to numerics 
+numeric_cols1 = ['h1Gd_lit', 'H_lit', 'KL_lit', 'dGh1_lit', 'h1Gd_prag', 
+'H_prag', 'KL_prag', 'dGh1_prag']
+numeric_cols2 = ['h1Gd_lit', 'H_lit', 'KL_lit', 'dGh1_lit', 'h1Gd_prag', 
+'H_prag', 'KL_prag', 'dGh1_prag', 'posterior']
+
+df_1[numeric_cols1] = df_1[numeric_cols1].apply(pd.to_numeric)
+df_2[numeric_cols2] = df_2[numeric_cols2].apply(pd.to_numeric)
+
+
+# Add log like
+df_1['log dGh1_lit'] = df_1['dGh1_lit'].apply(np.log)
+df_1['log dGh1_prag'] = df_1['dGh1_prag'].apply(np.log)
+
+df_2['log dGh1_lit'] = df_2['dGh1_lit'].apply(np.log)
+df_2['log dGh1_prag'] = df_2['dGh1_prag'].apply(np.log)
+
+#%% Save
+
+df_1.to_csv("df_expt1_update.csv")
+df_2.to_csv("df_expt2_update.csv")
 # %% 
 
-def extract_confidence(data):
-    """Extract list of lists of each participant's confidence ratings""" 
-    pass
+# def extract_confidence(data):
+#     """Extract list of lists of each participant's confidence ratings""" 
+#     pass
 
-def extract_examples(data): 
-    """Extract list of tuples of examples selected for each participant"""
-    pass 
+# def extract_examples(data): 
+#     """Extract list of tuples of examples selected for each participant"""
+#     pass 
 
-class Analyze(Problem): 
+# class Analyze(Problem): 
 
-    def heatmap(self): 
-        # TODO 
-        pass
+#     def heatmap(self): 
+#         # TODO 
+#         pass
     
-    def plots(self): 
-        # TODO: conditioned h\d plots 
-        pass
+#     def plots(self): 
+#         # TODO: conditioned h\d plots 
+#         pass
 
-    def metrics(self): 
+#     def metrics(self): 
 
-        # TODO: h|d entropy at each step 
-        # TODO: belief update of h|D at each step (KL divergence)
-        pass
+#         # TODO: h|d entropy at each step 
+#         # TODO: belief update of h|D at each step (KL divergence)
+#         pass
 
-    def loglike(self): 
+#     def loglike(self): 
 
-        # TODO: from selected_examples, calculate log likelihood of specific set of examples for participant
-        # maybe add this back to selected_examples
-        pass
+#         # TODO: from selected_examples, calculate log likelihood of specific set of examples for participant
+#         # maybe add this back to selected_examples
+#         pass
 
-    def hGd_choices(self): 
+#     def hGd_choices(self): 
 
-        # TODO: extract p(h|d) for all the choices the participant selects in a list, for literal and pragmatic 
-        # combine this with previous stuff 
-        # maybe add this to analysis script...? 
+#         # TODO: extract p(h|d) for all the choices the participant selects in a list, for literal and pragmatic 
+#         # combine this with previous stuff 
+#         # maybe add this to analysis script...? 
 
-        # TODO: make tuple where first value is output of hGd_choices and second value is confidence .. jk do this later
+#         # TODO: make tuple where first value is output of hGd_choices and second value is confidence .. jk do this later
 
-        self.hGd_lit 
-        self.hGd_prag
+#         self.hGd_lit 
+#         self.hGd_prag
 
-        # Variables to store
-        self.hGd_lit_vs_conf = None
-        self.hGd_prag_vs_conf = None
-        pass
+#         # Variables to store
+#         self.hGd_lit_vs_conf = None
+#         self.hGd_prag_vs_conf = None
+#         pass
 
-    def confidence_plots(self, exs, conf): 
-        # TODO: literal plot of confidence with output of hGd_choiecs (aggregated for all participants)
-        # TODO: pragmatic plot 
+#     def confidence_plots(self, exs, conf): 
+#         # TODO: literal plot of confidence with output of hGd_choiecs (aggregated for all participants)
+#         # TODO: pragmatic plot 
 
-        pass
+#         pass
 
-# TODO: function that loops through all the participants, makes plots 
+# # TODO: function that loops through all the participants, makes plots 
 
 
 #%% plots
 
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 
+#%% 
+
+sns.displot(df_2, x='posterior', hue='h1Gd_lit')
+
+#%%
+
+# print(df_2['h1Gd_lit'].corr(df_2['h1Gd_prag']))
+sns.displot(df_2, x='h1Gd_prag', y='posterior')
+print(df_2['h1Gd_prag'].corr(df_2['posterior']))
+sns.displot(df_2, x='h1Gd_lit', y='posterior')
+print(df_2['h1Gd_lit'].corr(df_2['posterior']))
 
 # %% 
 
@@ -267,8 +296,8 @@ example_part = df_2_long.xs('A10249252O9I20MRSOBVF') #.set_index('true_prob_idx'
 
 #%%
 
-plt.figure()
-plt.plot(example_part['h1Gd'])
+# plt.figure()
+# plt.plot(example_part['h1Gd'])
 #%%
 
 example_part.groupby('true_prob_idx')['h1Gd_lit'].apply(list)
@@ -286,8 +315,8 @@ sns.set()
 
 # df = example_part.drop(labels=['coords'], axis=1).reset_index()
 df = example_part[['h1Gd_lit', 'h1Gd_prag', 'posterior']].reset_index()
-df = df.iloc[20*4:24*4, :] #df.head(16)
-df['ex'] = [1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4]
+df = df.iloc[15*4:19*4*4, :] #df.head(16)
+df['ex'] = [1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4]
 
 s = df.select_dtypes(include='object').columns
 df[s] = df[s].astype("float")
