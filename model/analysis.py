@@ -6,6 +6,7 @@ import pandas as pd
 from seaborn.miscplot import palplot
 from seaborn.palettes import color_palette
 import examples
+import examples_full
 import import_problems
 
 # %% Load and prepare data
@@ -52,7 +53,7 @@ expt2_filename = "/Users/aliciachen/Dropbox/teaching_models/data/exp2_fixedex_da
 
 df_expt1, df_expt2 = load(expt1_filename, expt2_filename, true_prob_idxs)
 
-# %% 
+# %% Generate model predictions 
 
 def gen_example_sequence(df): 
     """
@@ -62,7 +63,16 @@ def gen_example_sequence(df):
     grouped = df.groupby(level=[0, 1])['coords'].apply(tuple).reset_index().set_index(['worker', 'true_prob_idx'])
     return grouped 
 
-def predict(true_prob_idxs): 
+def gen_model_preds(true_prob_idxs): 
+    preds = {}
+    for idx in true_prob_idxs: 
+        preds[idx] = examples_full.Problem(all_problems, idx)
+        preds[idx].example_space()
+        _, _ = preds[idx].literal()
+        _, _ = preds[idx].pragmatic(10)
+    return preds
+
+def predict(preds): 
     """
     Loop over problem worker pairs 
     Make a list of model predictions for each problem worker pair for both lit and prag 
@@ -71,6 +81,15 @@ def predict(true_prob_idxs):
     df_expt1_grouped = gen_example_sequence(df_expt1)
     df_expt2_grouped = gen_example_sequence(df_expt2)
     dfs_grouped = [df_expt1_grouped, df_expt2_grouped]
+
+    # Make a dict and generate model predictionas for each of the problems
+    # preds = {}
+    # for idx in true_prob_idxs: 
+    #     preds[idx] = examples_full.Problem(all_problems, idx)
+    #     preds[idx].example_space()
+    #     _, _ = preds[idx].literal()
+    #     _, _ = preds[idx].pragmatic(100)
+    preds = preds
 
     for df in dfs_grouped: 
         
@@ -86,12 +105,13 @@ def predict(true_prob_idxs):
             try: 
                 idx = row[1]  # True problem index 
                 coords = df.loc[row, 'coords']
-                prob = examples.Problem(all_problems, idx)
-                prob.selected_examples(coords)
+                # prob = examples_full.Problem(all_problems, idx)
                 
-                _, _ = prob.literal()
-                _, _ = prob.pragmatic(50)
-                _ = prob.outputs() 
+                preds[idx].selected_examples(coords)
+                
+                # _, _ = prob.literal()
+                # _, _ = prob.pragmatic(50)
+                _ = preds[idx].outputs() 
 
                 # Fix later: 
                 # hGd_lit, dGh_lit = prob.literal()
@@ -102,14 +122,14 @@ def predict(true_prob_idxs):
                 # print(df.dtypes)
                 print(row)
                 # print(prob.h1Gd_lit)
-                df.at[row, 'h1Gd_lit'] = prob.h1Gd_lit
-                df.at[row, 'dGh1_lit'] = prob.dGh1_lit
-                df.at[row, 'h1Gd_prag'] = prob.h1Gd_prag
-                df.at[row, 'dGh1_prag'] = prob.dGh1_prag
-                df.at[row, 'H_lit'] = prob.H_lit
-                df.at[row, 'H_prag'] = prob.H_prag
-                df.at[row, 'KL_lit'] = prob.KL_lit
-                df.at[row, 'KL_prag'] = prob.KL_prag
+                df.at[row, 'h1Gd_lit'] = preds[idx].h1Gd_lit
+                df.at[row, 'dGh1_lit'] = preds[idx].dGh1_lit
+                df.at[row, 'h1Gd_prag'] = preds[idx].h1Gd_prag
+                df.at[row, 'dGh1_prag'] = preds[idx].dGh1_prag
+                df.at[row, 'H_lit'] = preds[idx].H_lit
+                df.at[row, 'H_prag'] = preds[idx].H_prag
+                df.at[row, 'KL_lit'] = preds[idx].KL_lit
+                df.at[row, 'KL_prag'] = preds[idx].KL_prag
                 # OMG IT WORKED
 
             except KeyboardInterrupt: 
@@ -117,7 +137,11 @@ def predict(true_prob_idxs):
 
     return dfs_grouped
 
-df_expt1_final, df_expt2_final = predict(true_prob_idxs)
+preds = gen_model_preds(true_prob_idxs)
+
+#%% populate df
+
+df_expt1_final, df_expt2_final = predict(preds)
 
 # TODO: for each worker problem pair, make a list of tuples of coords (selected examples) that we put in example 
 

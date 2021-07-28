@@ -41,18 +41,20 @@ class Problem:
                             linewidths=2, linecolor='#808080')
             ax_i.set(xticks=[], yticks=[], title=opt_labels[idx])
 
-    
     def selected_examples(self, exs): 
+        self.exs = exs
+        self.exs_length = len(exs)
+
+    def example_space(self): 
 
         """
         Generate example space for all k up to # exs selected
         """
 
-        self.exs = exs
-        self.exs_length = len(exs)
+        # self.exs = exs
         possible_exs = []
 
-        if self.exs_length >= 1: 
+        if self.k >= 1: 
 
             step1_exs = []
             for col in range(self.shape_[1]): 
@@ -63,7 +65,7 @@ class Problem:
             possible_exs.append(step1_exs)
 
         
-        if self.exs_length >= 2: 
+        if self.k >= 2: 
 
             step2_exs = []
             for ex in step1_exs: 
@@ -79,7 +81,7 @@ class Problem:
             possible_exs.append(step2_exs)
 
 
-        if self.exs_length >= 3: 
+        if self.k >= 3: 
             
             step3_exs = []
             for ex in step2_exs: 
@@ -93,7 +95,7 @@ class Problem:
             possible_exs.append(step3_exs)
 
 
-        if self.exs_length >= 3: 
+        if self.k >= 4: 
             
             step4_exs = []
             for ex in step3_exs: 
@@ -125,23 +127,23 @@ class Problem:
         # Initialize empty dataframes
 
         self.init_dfs = []
-        if self.exs_length >= 1: 
+        if self.k >= 1: 
             df_0_step1 = pd.DataFrame(index=pd.MultiIndex.from_tuples(self.possible_exs_by_step[0]), columns=columns)
             self.init_dfs.append(df_0_step1)
-        if self.exs_length >= 2: 
+        if self.k >= 2: 
             df_0_step2 = pd.DataFrame(index=pd.MultiIndex.from_tuples(self.possible_exs_by_step[1]), columns=columns)
             self.init_dfs.append(df_0_step2)
-        if self.exs_length >= 3: 
+        if self.k >= 3: 
             df_0_step3 = pd.DataFrame(index=pd.MultiIndex.from_tuples(self.possible_exs_by_step[2]), columns=columns)
             self.init_dfs.append(df_0_step3)
-        if self.exs_length >= 4: 
+        if self.k >= 4: 
             df_0_step4 = pd.DataFrame(index=pd.MultiIndex.from_tuples(self.possible_exs_by_step[3]), columns=columns)
             self.init_dfs.append(df_0_step4)
         
         # self.init_dfs = [df_0_step1, df_0_step2, df_0_step3, df_0_step4]
 
         # Fill dataframes with 1 if selected examples are consistent
-        for n in range(self.exs_length): 
+        for n in range(self.k): 
             for ex in self.possible_exs_by_step[n]: 
                 for idx, col_name in enumerate(columns): 
                     if isConsistent(self.hs[idx], ex): 
@@ -172,6 +174,9 @@ class Problem:
         # Generate P(h|d) for literal learner
         # self.hGd_lit = [normalize_cols(df_0_step1), normalize_cols(df_0_step2), normalize_cols(df_0_step3), normalize_cols(df_0_step4)]
         # self.dGh_lit = [normalize_rows(df_0_step1), normalize_rows(df_0_step2), normalize_rows(df_0_step3), normalize_rows(df_0_step4)]
+
+        # TODO: condition dGh to filter out only possible selected examples, and then normalize
+        # DO this same thing for pragmatic 
 
         return self.hGd_lit, self.dGh_lit
         
@@ -260,6 +265,7 @@ class Problem:
 
 testprob = Problem(all_problems, 3)
 testprob.view()
+testprob.example_space()
 testprob.selected_examples(((1, 1), (2, 1), (3, 1), (4, 1)))
 # print(len(testprob.possible_exs_by_step[3]))
 
