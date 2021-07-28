@@ -10,7 +10,7 @@ import import_problems
 filename = '/Users/aliciachen/Dropbox/teaching_models/teaching_stimuli - all_examples (9).csv'
 all_problems = import_problems.df_from_csv(filename)
 
-class ProblemFull: 
+class Problem: 
 
     def __init__(self, all_problems, prob_idx): 
     
@@ -258,7 +258,7 @@ class ProblemFull:
             return None
 # Testing
 
-testprob = ProblemFull(all_problems, 3)
+testprob = Problem(all_problems, 3)
 testprob.view()
 testprob.selected_examples(((1, 1), (2, 1), (3, 1), (4, 1)))
 # print(len(testprob.possible_exs_by_step[3]))
