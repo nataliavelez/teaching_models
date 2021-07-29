@@ -42,6 +42,7 @@ class Problem:
             ax_i.set(xticks=[], yticks=[], title=opt_labels[idx])
 
     def selected_examples(self, exs): 
+        """Store selected examples for outputs method"""
         self.exs = exs
         self.exs_length = len(exs)
 
@@ -71,12 +72,12 @@ class Problem:
             for ex in step1_exs: 
                 for col in range(self.shape_[1]): 
                     for row in range(self.shape_[2]): 
-                        if self.h1[col][row] == 1 and (col, row) != ex[0]: # and ((col, row), ex[0]) not in step2_exs: 
+                        if self.h1[col][row] == 1 and (col, row) != ex[0]: 
                             newex = (ex[0], (col, row))
                             if set(newex) not in [set(i) for i in step2_exs]:
                                 step2_exs.append(newex)
 
-                            # Maybe later: add test that # examples is size of trueH choose 2
+                            # Maybe later: add test that makes sure # examples is size of h1 choose 2, etc. 
 
             possible_exs.append(step2_exs)
 
@@ -140,7 +141,6 @@ class Problem:
             df_0_step4 = pd.DataFrame(index=pd.MultiIndex.from_tuples(self.possible_exs_by_step[3]), columns=columns)
             self.init_dfs.append(df_0_step4)
         
-        # self.init_dfs = [df_0_step1, df_0_step2, df_0_step3, df_0_step4]
 
         # Fill dataframes with 1 if selected examples are consistent
         for n in range(self.k): 
@@ -164,24 +164,13 @@ class Problem:
         self.hGd_lit = [normalize_cols(df) for df in self.init_dfs]
         self.dGh_lit = [normalize_rows(df) for df in self.init_dfs]
 
-        # TODO: take this out of self? 
-        # self.hGd_0_step1 = normalize_cols(df_0_step1)
-        # self.hGd_0_step2 = normalize_cols(df_0_step2)
-        # self.hGd_0_step3 = normalize_cols(df_0_step3)
-        # self.hGd_0_step4 = normalize_cols(df_0_step4)
-
-
-        # Generate P(h|d) for literal learner
-        # self.hGd_lit = [normalize_cols(df_0_step1), normalize_cols(df_0_step2), normalize_cols(df_0_step3), normalize_cols(df_0_step4)]
-        # self.dGh_lit = [normalize_rows(df_0_step1), normalize_rows(df_0_step2), normalize_rows(df_0_step3), normalize_rows(df_0_step4)]
-
-        # TODO: condition dGh to filter out only possible selected examples, and then normalize
+        # TODO: conditioning for dGh to filter out only possible selected examples, and then normalize
         # DO this same thing for pragmatic 
 
         return self.hGd_lit, self.dGh_lit
         
     def pragmatic(self, nIter): 
-        """return pragmatic h|d and d|h"""
+        """return pragmatic h|d and d|h after nIter iterations"""
         hGd_prag = []
         dGh_prag = []
 
@@ -199,6 +188,12 @@ class Problem:
         self.dGh_prag = dGh_prag
 
         return self.hGd_prag, self.dGh_prag
+
+    def runModel(self, nIter): 
+        self.example_space()
+        self.literal()
+        self.pragmatic(nIter)
+        return None
 
     def outputs(self): 
             """
@@ -263,14 +258,14 @@ class Problem:
             return None
 # Testing
 
-testprob = Problem(all_problems, 3)
-testprob.view()
-testprob.example_space()
-testprob.selected_examples(((1, 1), (2, 1), (3, 1), (4, 1)))
-# print(len(testprob.possible_exs_by_step[3]))
+# testprob = Problem(all_problems, 3)
+# testprob.view()
+# testprob.example_space()
+# testprob.selected_examples(((1, 1), (2, 1), (3, 1), (4, 1)))
+# # print(len(testprob.possible_exs_by_step[3]))
 
-_, _ = testprob.literal()
-_, _ = testprob.pragmatic(200)
+# _, _ = testprob.literal()
+# _, _ = testprob.pragmatic(200)
 
 
-_ = testprob.outputs()
+# _ = testprob.outputs()

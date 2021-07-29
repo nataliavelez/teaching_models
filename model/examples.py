@@ -1,4 +1,4 @@
-"""Find possible examples at each step"""
+"""Model for limited example space (possible examples at each step is set of alternative next options"""
 
 import numpy as np
 import pandas as pd
@@ -202,11 +202,11 @@ class Problem:
             all_probs = []  # Full belief distribution
             #print(dfs)
             for i, ex in enumerate(self.exs): 
-                idx = self.exs[:i+1]
+                idx = sorted(self.exs[:i+1]) # Check this laer to see how much indexing works...
                 # print(dfs[i])
                 # print(idx)
-                self.a = dfs[i]
-                probs.append(dfs[i].xs(idx)[0])  # What is this issue with tuple indexing? 
+                # self.a = dfs[i]
+                probs.append(dfs[i].xs(idx)['h1'])  # What is this issue with tuple indexing? 
                 all_probs.append(dfs[i].xs(idx))  # Append full belief distrubtion 
             return probs, all_probs  # test this later
 
