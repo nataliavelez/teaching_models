@@ -2,6 +2,7 @@
 
 import matplotlib.pyplot as plt
 import seaborn as sns
+import pandas as pd 
 
 df_1 = pd.read_pickle("./df_expt1.pkl")
 df_2 = pd.read_pickle("./df_expt2.pkl")

@@ -161,8 +161,10 @@ class Problem:
             df = df.fillna(0)
             return df 
 
-        self.hGd_lit = [normalize_cols(df) for df in self.init_dfs]
-        self.dGh_lit = [normalize_rows(df) for df in self.init_dfs]
+
+        #Edited
+        self.hGd_lit = [normalize_rows(df) for df in self.init_dfs]
+        self.dGh_lit = [normalize_cols(df) for df in self.init_dfs]
 
         # TODO: conditioning for dGh to filter out only possible selected examples, and then normalize
         # DO this same thing for pragmatic 
@@ -257,15 +259,3 @@ class Problem:
             
             return None
 # Testing
-
-# testprob = Problem(all_problems, 3)
-# testprob.view()
-# testprob.example_space()
-# testprob.selected_examples(((1, 1), (2, 1), (3, 1), (4, 1)))
-# # print(len(testprob.possible_exs_by_step[3]))
-
-# _, _ = testprob.literal()
-# _, _ = testprob.pragmatic(200)
-
-
-# _ = testprob.outputs()
