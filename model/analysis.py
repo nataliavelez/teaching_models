@@ -67,6 +67,7 @@ def gen_example_sequence(df):
 def gen_model_preds(true_prob_idxs): 
     preds = {}
     for idx in true_prob_idxs: 
+        print('Generating model predictions for problem ' + str(idx))
         preds[idx] = examples_full.Problem(all_problems, idx)
         preds[idx].runModel(nIter=50)
     return preds
@@ -165,5 +166,5 @@ df_2['log dGh1_prag'] = df_2['dGh1_prag'].apply(np.log)
 df_1.to_pickle("./df_expt1.pkl")
 df_2.to_pickle("./df_expt2.pkl")
 
-df_1.to_csv("df_expt1_update_50iter.csv")
-df_2.to_csv("df_expt2_update_50iter.csv")
+df_1.to_csv("df_expt1_update_250iter.csv")
+df_2.to_csv("df_expt2_update_250iter.csv")

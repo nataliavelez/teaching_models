@@ -19,27 +19,38 @@ print(df_2['h1Gd_prag'].corr(df_2['posterior']))
 sns.displot(df_2, x='h1Gd_lit', y='posterior')
 print(df_2['h1Gd_lit'].corr(df_2['posterior']))
 
+#%%
+
+sns.displot(df_2, x='h1Gd_prag', y='posterior')
+print(df_2['h1Gd_prag'].corr(df_2['posterior']))
+sns.displot(df_2, x='dGh1_lit', y='posterior')
+print(df_2['dGh1_lit'].corr(df_2['posterior']))
+
 # %% 
 
 plt.figure()
-plt.scatter(df_2_long['h1Gd_prag'], df_2_long['posterior'])
+plt.scatter(df_2['h1Gd_prag'], df_2['posterior'])
 plt.xlabel('pragmatic model p(h1|d)')
 plt.ylabel('participant estimates')
 
 plt.figure()
-plt.scatter(df_2_long['h1Gd_lit'], df_2_long['posterior'])
+plt.scatter(df_2['h1Gd_lit'], df_2['posterior'])
 plt.xlabel('literal model p(h1|d)')
 plt.ylabel('participant estimates')
 
 plt.figure()
-plt.scatter([i for i in range(2587)], df_1_long['h1Gd_prag'])
+plt.scatter([i for i in range(2587)], df_1['h1Gd_prag'])
+
+#%%
+
+
 # %%
 
 plt.figure()
-plt.scatter(df_1_long['h1Gd_prag'], df_1_long['h1Gd_lit'])
+plt.scatter(df_1['h1Gd_prag'], df_1['h1Gd_lit'])
 # %%
 
-example_part = df_2_long.xs('A10249252O9I20MRSOBVF') #.set_index('true_prob_idx')
+example_part = df_2.xs('A10249252O9I20MRSOBVF') #.set_index('true_prob_idx')
 
 #%%
 

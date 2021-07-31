@@ -204,8 +204,8 @@ class Problem:
 
 
         #Edited
-        self.hGd_lit = [normalize_rows(df) for df in self.init_dfs]
-        self.dGh_lit = [normalize_cols(df) for df in self.init_dfs]
+        self.hGd_lit = [normalize_cols(df) for df in self.init_dfs]
+        self.dGh_lit = [normalize_rows(df) for df in self.init_dfs]
 
         # TODO: conditioning for dGh to filter out only possible selected examples, and then normalize
         # DO this same thing for pragmatic 
