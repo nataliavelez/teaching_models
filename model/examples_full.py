@@ -51,63 +51,104 @@ class Problem:
         """
         Generate example space for all k up to # exs selected
         """
+        # # Generate all possible combos of coords
+        # full_exs = []
 
-        # self.exs = exs
-        possible_exs = []
+        # if self.k >= 1: 
+        #     exsk1 = []
+        #     for col in range(self.shape_[1]): 
+        #         for row in range(self.shape_[2]): 
+        #             exsk1.append(((col, row), ))
+
+        #     full_exs.append(exsk1)
+
+
+        # # self.exs = exs
+
+        def flat_idx_to_tuple(idx): 
+            """Convert 0 to 35 index to tuple of coords"""
+            row = (idx) // 6
+            col = (idx) % 6
+            return (row, col)
 
         if self.k >= 1: 
+            step1_exs = [(flat_idx_to_tuple(i), ) for i in range(36)]
 
-            step1_exs = []
-            for col in range(self.shape_[1]): 
-                for row in range(self.shape_[2]): 
-                    if self.h1[col][row] == 1: 
-                        step1_exs.append(((col, row),))
-                
-            possible_exs.append(step1_exs)
-
-        
         if self.k >= 2: 
-
             step2_exs = []
-            for ex in step1_exs: 
-                for col in range(self.shape_[1]): 
-                    for row in range(self.shape_[2]): 
-                        if self.h1[col][row] == 1 and (col, row) != ex[0]: 
-                            newex = (ex[0], (col, row))
-                            if set(newex) not in [set(i) for i in step2_exs]:
-                                step2_exs.append(newex)
-
-                            # Maybe later: add test that makes sure # examples is size of h1 choose 2, etc. 
-
-            possible_exs.append(step2_exs)
-
+            for i in range(36): 
+                for j in range(i+1, 36): 
+                    step2_exs.append((flat_idx_to_tuple(i), flat_idx_to_tuple(j)))
 
         if self.k >= 3: 
-            
             step3_exs = []
-            for ex in step2_exs: 
-                for col in range(self.shape_[1]): 
-                    for row in range(self.shape_[2]): 
-                        if self.h1[col][row] == 1 and (col, row) != ex[0] and (col, row) != ex[1]:
-                            newex = (ex[0], ex[1], (col, row))
-                            if set(newex) not in [set(i) for i in step3_exs]:
-                                step3_exs.append(newex)
-
-            possible_exs.append(step3_exs)
-
+            for i in range(36): 
+                for j in range(i+1, 36): 
+                    for k in range(j+1, 36): 
+                        step3_exs.append((flat_idx_to_tuple(i), flat_idx_to_tuple(j), flat_idx_to_tuple(k)))
 
         if self.k >= 4: 
-            
             step4_exs = []
-            for ex in step3_exs: 
-                for col in range(self.shape_[1]): 
-                    for row in range(self.shape_[2]): 
-                        if self.h1[col][row] == 1 and (col, row) != ex[0] and (col, row) != ex[1] and (col, row) != ex[2]:
-                            newex = (ex[0], ex[1], ex[2], (col, row))
-                            if set(newex) not in [set(i) for i in step4_exs]:
-                                step4_exs.append(newex)
+            for i in range(36):
+                for j in range(i+1, 36):
+                    for k in range(j+1, 36):
+                        for l in range(k+1, 36):
+                            step4_exs.append((flat_idx_to_tuple(i), flat_idx_to_tuple(j), flat_idx_to_tuple(k), flat_idx_to_tuple(l)))
 
-            possible_exs.append(step4_exs)
+        possible_exs = [step1_exs, step2_exs, step3_exs, step4_exs]
+
+        # if self.k >= 1: 
+
+        #     step1_exs = []
+        #     for col in range(self.shape_[1]): 
+        #         for row in range(self.shape_[2]): 
+        #             step1_exs.append(((col, row),))
+                
+        #     possible_exs.append(step1_exs)
+
+        
+        # if self.k >= 2: 
+
+        #     step2_exs = []
+        #     for ex in step1_exs: 
+        #         for col in range(self.shape_[1]): 
+        #             for row in range(self.shape_[2]): 
+        #                 if (col, row) != ex[0]: 
+        #                     newex = (ex[0], (col, row))
+        #                     if set(newex) not in [set(i) for i in step2_exs]:
+        #                         step2_exs.append(newex)
+
+        #                     # Maybe later: add test that makes sure # examples is size of h1 choose 2, etc. 
+
+        #     possible_exs.append(step2_exs)
+
+
+        # if self.k >= 3: 
+            
+        #     step3_exs = []
+        #     for ex in step2_exs: 
+        #         for col in range(self.shape_[1]): 
+        #             for row in range(self.shape_[2]): 
+        #                 if (col, row) != ex[0] and (col, row) != ex[1]:
+        #                     newex = (ex[0], ex[1], (col, row))
+        #                     if set(newex) not in [set(i) for i in step3_exs]:
+        #                         step3_exs.append(newex)
+
+        #     possible_exs.append(step3_exs)
+
+
+        # if self.k >= 4: 
+            
+        #     step4_exs = []
+        #     for ex in step3_exs: 
+        #         for col in range(self.shape_[1]): 
+        #             for row in range(self.shape_[2]): 
+        #                 if (col, row) != ex[0] and (col, row) != ex[1] and (col, row) != ex[2]:
+        #                     newex = (ex[0], ex[1], ex[2], (col, row))
+        #                     if set(newex) not in [set(i) for i in step4_exs]:
+        #                         step4_exs.append(newex)
+
+        #     possible_exs.append(step4_exs)
 
         self.possible_exs_by_step = possible_exs
 
