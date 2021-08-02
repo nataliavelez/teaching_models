@@ -4,11 +4,12 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd 
 import examples_full
+import dill as pickle
 
 df_1 = pd.read_pickle("./df_expt1.pkl")
 df_2 = pd.read_pickle("./df_expt2.pkl")
 
-# %% 
+# %% Make test examples
 
 # Create dict of test probs with (flattened) example coords
 test_exs = {
@@ -28,10 +29,43 @@ def flat_idx_to_tuple(idx):
 test_exs_new = {}
 
 for k, v in test_exs.items(): 
+    
+    new_coords = []
+    
     for i, tup in enumerate(v): 
+        new_tup = ()
         for coord in tup: 
             coord_new = flat_idx_to_tuple(coord)
-            test_exs[k][i] = coord_new
+            new_tup += (coord_new, )
+        new_coords.append(new_tup)
+    
+    test_exs[k] = new_coords
 
 print(test_exs)
+
+# # %% Load model preds FIX LATER
+
+# def pickle_loader(filename):
+#     """Deserialize a file of pickled objects. 
+#     https://stackoverflow.com/questions/4529815/saving-an-object-data-persistence/4529901"""
+#     with open(filename, "rb") as f:
+#         while True:
+#             try:
+#                 yield pickle.load(f)
+#             except EOFError:
+#                 break
+
+# preds = []
+# for pred in pickle_loader(filename="./model_preds.pkl"): 
+#     preds.append(pred)
+
+# with open("./model_preds.pkl", 'rb') as inp: 
+#     preds = pickle.load(inp)
+
+
+# f = open("./model_preds.pkl", 'rb')
+# preds = pickle.load(f)
+
+
+
 # %%
