@@ -9,6 +9,7 @@ import pandas as pd
 # import examples
 import examples_full
 import import_problems
+import pickle
 
 # %% Load and prepare data
 
@@ -168,3 +169,8 @@ df_2.to_pickle("./df_expt2.pkl")
 
 df_1.to_csv("df_expt1_update_250iter.csv")
 df_2.to_csv("df_expt2_update_250iter.csv")
+
+# Save preds dict
+f = open("./model_preds.pkl", 'wb')
+pickle.dump(preds, f)
+
