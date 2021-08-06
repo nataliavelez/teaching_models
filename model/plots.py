@@ -4,9 +4,10 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd 
 
+
 df_1 = pd.read_pickle("./df_expt1.pkl")
 df_2 = pd.read_pickle("./df_expt2.pkl")
-
+df_3 = pd.read_pickle("./df_expt3.pkl")
 #%% 
 
 sns.displot(df_2, x='posterior', hue='h1Gd_lit')
@@ -15,9 +16,23 @@ sns.displot(df_2, x='posterior', hue='h1Gd_lit')
 
 # print(df_2['h1Gd_lit'].corr(df_2['h1Gd_prag']))
 sns.displot(df_2, x='h1Gd_prag', y='posterior')
-print(df_2['h1Gd_prag'].corr(df_2['posterior']))
+
 sns.displot(df_2, x='h1Gd_lit', y='posterior')
-print(df_2['h1Gd_lit'].corr(df_2['posterior']))
+
+#%% 
+
+import numpy as np
+print("pragmatic correlation:")
+print(np.sqrt(df_3['h1Gd_prag'].corr(df_2['posterior'])))
+print("Literal correlation: ")
+print(np.sqrt(df_3['h1Gd_lit'].corr(df_2['posterior'])))
+
+#%% 
+
+sns.displot(df_3, x='h1Gd_prag', y='posterior', bins=25)
+print(df_3['h1Gd_prag'].corr(df_2['posterior']))
+sns.displot(df_3, x='h1Gd_lit', y='posterior')
+print(df_3['h1Gd_lit'].corr(df_2['posterior']))
 
 #%%
 
@@ -51,6 +66,16 @@ plt.scatter(df_1['h1Gd_prag'], df_1['h1Gd_lit'])
 # %%
 
 example_part = df_2.xs('A10249252O9I20MRSOBVF') #.set_index('true_prob_idx')
+
+# %% 
+
+
+# %% plot posterior stuff 
+
+plt.figure()
+plt.plot(example_part['h1Gd_prag'])
+plt.plot(example_part['KL'])
+plt.plot(example_part['H'])
 
 #%%
 

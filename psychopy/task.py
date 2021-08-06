@@ -303,64 +303,76 @@ for prob_idx, v in probs.items():
 
 
     # Move on and stay text boxes
-    stay = visual.TextBox(window=win,
-                             text='Yes',
-                             font_size=30,
-                             #colorSpace='rgb255',
-                             opacity=1,
-                             font_color=[1, 1, 1],
-                             #background_color=[0, 0, 0],
-                             border_color=[1, 1, 1],
-                             border_stroke_width=4,
-                             textgrid_shape=[3,1],
-                             pos=(-.5, 0)
-                             )
+    # stay = visual.TextBox(window=win,
+    #                          text='Yes',
+    #                          font_size=30,
+    #                          #colorSpace='rgb255',
+    #                          opacity=1,
+    #                          font_color=[1, 1, 1],
+    #                          #background_color=[0, 0, 0],
+    #                          border_color=[1, 1, 1],
+    #                          border_stroke_width=4,
+    #                          textgrid_shape=[3,1],
+    #                          pos=(-.5, 0)
+    #                          )
 
-    stay.setBackgroundColor([.122, .297, .486])  # Default starting key point
+    # stay.setBackgroundColor([.122, .297, .486])  # Default starting key point
 
-    move_on = visual.TextBox(window=win,
-                             text='No',
-                             font_size=30,
-                             opacity=1,
-                             #colorSpace='rgb255',
-                             font_color=[1, 1, 1],
-                             #background_color=[0, 0, 0],
-                             border_color=[1, 1, 1],
-                             border_stroke_width=4,
-                             textgrid_shape=[3,1],
-                             pos=(.5, 0)
-                             )
+    # move_on = visual.TextBox(window=win,
+    #                          text='No',
+    #                          font_size=30,
+    #                          opacity=1,
+    #                          #colorSpace='rgb255',
+    #                          font_color=[1, 1, 1],
+    #                          #background_color=[0, 0, 0],
+    #                          border_color=[1, 1, 1],
+    #                          border_stroke_width=4,
+    #                          textgrid_shape=[3,1],
+    #                          pos=(.5, 0)
+    #                          )
 
-    buttons = [move_on, stay]
+    # buttons = [move_on, stay]
 
     # Text on top and underneath move on and stay text boxes
     cont = visual.TextStim(win=win,
-                           text="Continue?",
+                           text="How likely is [NAME] to get it right?",
                            pos=(0, .3),
                            height=.09)
 
 
 
     # New continue screen text
-    leftarrow = visual.TextStim(win=win, text='\u2190', pos=(-.5, 0),
-                                font="Menlo", height=.3)
-    rightarrow = visual.TextStim(win=win, text='\u2192', pos=(.5, 0),
-                                 font="Menlo", height=.3)
+    # leftarrow = visual.TextStim(win=win, text='\u2190', pos=(-.5, 0),
+    #                             font="Menlo", height=.3)
+    # rightarrow = visual.TextStim(win=win, text='\u2192', pos=(.5, 0),
+    #                              font="Menlo", height=.3)
+
+    leftarrow = visual.TextStim(win=win, text='1', pos=(-.66, 0),
+                                font="Menlo", height=.13)
+    twokey = visual.TextStim(win=win, text='2', pos=(-.33, 0),
+                            font="Menlo", height=.13)
+    threekey = visual.TextStim(win=win, text='3', pos=(0, 0),
+                        font="Menlo", height=.13)
+    fourkey = visual.TextStim(win=win, text='4', pos=(.33, 0),
+                    font="Menlo", height=.13)
+    rightarrow = visual.TextStim(win=win, text='5', pos=(.66, 0),
+                                 font="Menlo", height=.13)
+
 
     yestext = visual.TextStim(win=win,
-                          text="Yes",
-                          pos=(-.5, -.26),
-                          height=.1)
+                          text="No chance",
+                          pos=(-.66, -.22),
+                          height=.08)
 
     notext = visual.TextStim(win=win,
-                             text="No",
-                             pos=(.5, -.26),
-                             height=.1)
+                             text="Certainly",
+                             pos=(.66, -.22),
+                             height=.08)
 
 
 
     nKeys = 0
-    maxExamples = 4
+    maxExamples = 3
     examplesLeft = maxExamples
 
     # fixation cross
@@ -393,7 +405,7 @@ for prob_idx, v in probs.items():
         lett.draw()
 
     win.flip()
-    core.wait(27) # Study time, change to 15 later
+    core.wait(5) # Study time, change to 15 later
 
     # Countdown
 
@@ -560,7 +572,7 @@ for prob_idx, v in probs.items():
                 break
 
             len_allKeys1 = 0
-            timer1 = core.CountdownTimer(2)
+            timer1 = core.CountdownTimer(5)
 
 
             while True: # Move on and stay buttons
@@ -572,6 +584,9 @@ for prob_idx, v in probs.items():
                 cont.draw()
                 yestext.draw()
                 notext.draw()
+                twokey.draw()
+                threekey.draw()
+                fourkey.draw()
 
 
 
@@ -579,7 +594,7 @@ for prob_idx, v in probs.items():
 
                 allKeys1 = event.getKeys()
 
-                if timer1.getTime() < 0:
+                if timer1.getTime() < 0:  # No response
 
 
 
@@ -595,7 +610,7 @@ for prob_idx, v in probs.items():
                     'problem': problem,
                     'onset': onset,
                     'dur': dur,
-                    'response': True,
+                    'response': None,
                     'rt': None,
                     'remaining': examplesLeft
                     }
@@ -615,58 +630,86 @@ for prob_idx, v in probs.items():
                 if len(allKeys1) > len_allKeys1:
 
                     thisKey = allKeys1[-1]
-                    if thisKey == key_mapping['space']:
 
-                        event.clearEvents()
+                    event.clearEvents()
 
-                        examplesLeft -= 1  # decrease by one example
+                    examplesLeft -= 1  # decrease by one example
 
-                        # Data
-                        dur = exptTimer.getTime() - onset
+                    # Data
+                    dur = exptTimer.getTime() - onset
 
-                        trial_data = {
-                        'trial_type': trial_type,
-                        'trial_no': trial_no,
-                        'problem': problem,
-                        'onset': onset,
-                        'dur': dur,
-                        'response': True,
-                        'rt': dur,
-                        'remaining': examplesLeft
-                        }
+                    trial_data = {
+                    'trial_type': trial_type,
+                    'trial_no': trial_no,
+                    'problem': problem,
+                    'onset': onset,
+                    'dur': dur,
+                    'response': thisKey,
+                    'rt': dur,
+                    'remaining': examplesLeft
+                    }
 
-                        expt_data.append(trial_data)
-
-
-                        timer.reset()
-                        timer1.reset()
-                        changeFlag = True
-                        break
-
-                    elif thisKey == key_mapping['right']:
-
-                        #examplesLeft = 0
-
-                        # Data
-                        dur = exptTimer.getTime() - onset
-
-                        trial_data = {
-                        'trial_type': trial_type,
-                        'trial_no': trial_no,
-                        'problem': problem,
-                        'onset': onset,
-                        'dur': dur,
-                        'response': False,
-                        'rt': dur,
-                        'remaining': examplesLeft
-                        }
-
-                        expt_data.append(trial_data)
+                    expt_data.append(trial_data)
 
 
-                        problemFinished = True
-                        changeFlag = True
-                        break
+                    timer.reset()
+                    timer1.reset()
+                    changeFlag = True
+
+                    break
+
+                    # if thisKey == key_mapping['space']:
+
+                    #     event.clearEvents()
+
+                    #     examplesLeft -= 1  # decrease by one example
+
+                    #     # Data
+                    #     dur = exptTimer.getTime() - onset
+
+                    #     trial_data = {
+                    #     'trial_type': trial_type,
+                    #     'trial_no': trial_no,
+                    #     'problem': problem,
+                    #     'onset': onset,
+                    #     'dur': dur,
+                    #     'response': True,
+                    #     'rt': dur,
+                    #     'remaining': examplesLeft
+                    #     }
+
+                    #     expt_data.append(trial_data)
+
+
+                    #     timer.reset()
+                    #     timer1.reset()
+                    #     changeFlag = True
+                    #     break
+
+                    # elif thisKey == key_mapping['right']:
+
+                    #     #examplesLeft = 0
+
+                    #     # Data
+                    #     dur = exptTimer.getTime() - onset
+
+                    #     trial_data = {
+                    #     'trial_type': trial_type,
+                    #     'trial_no': trial_no,
+                    #     'problem': problem,
+                    #     'onset': onset,
+                    #     'dur': dur,
+                    #     'response': False,
+                    #     'rt': dur,
+                    #     'remaining': examplesLeft
+                    #     }
+
+                    #     expt_data.append(trial_data)
+
+
+                    #     problemFinished = True
+                    #     changeFlag = True
+                    #     break
 
 
 
@@ -833,7 +876,7 @@ for prob_idx, v in probs.items():
                         event.clearEvents()
 
                         len_allKeys1 = 0
-                        timer1 = core.CountdownTimer(2)
+                        timer1 = core.CountdownTimer(5)
 
                         # previous learner rects are the same color
                         learner_rects[trial.cursor_loc[0]][trial.cursor_loc[1]].fillColor=(72, 160, 248)
@@ -854,14 +897,16 @@ for prob_idx, v in probs.items():
                             cont.draw()
                             yestext.draw()
                             notext.draw()
-
+                            twokey.draw()
+                            threekey.draw()
+                            fourkey.draw()
 
 
                             win.flip()
 
                             allKeys1 = event.getKeys()
 
-                            if timer1.getTime() < 0:
+                            if timer1.getTime() < 0:  # No response
 
 
 
@@ -877,7 +922,7 @@ for prob_idx, v in probs.items():
                                 'problem': problem,
                                 'onset': onset,
                                 'dur': dur,
-                                'response': True,
+                                'response': None,
                                 'rt': None,
                                 'remaining': examplesLeft
                                 }
@@ -897,58 +942,34 @@ for prob_idx, v in probs.items():
                             if len(allKeys1) > len_allKeys1:
 
                                 thisKey = allKeys1[-1]
-                                if thisKey == key_mapping['space']:
 
-                                    event.clearEvents()
+                                event.clearEvents()
 
-                                    examplesLeft -= 1  # decrease by one example
+                                examplesLeft -= 1  # decrease by one example
 
-                                    # Data
-                                    dur = exptTimer.getTime() - onset
+                                # Data
+                                dur = exptTimer.getTime() - onset
 
-                                    trial_data = {
-                                    'trial_type': trial_type,
-                                    'trial_no': trial_no,
-                                    'problem': problem,
-                                    'onset': onset,
-                                    'dur': dur,
-                                    'response': True,
-                                    'rt': dur,
-                                    'remaining': examplesLeft
-                                    }
+                                trial_data = {
+                                'trial_type': trial_type,
+                                'trial_no': trial_no,
+                                'problem': problem,
+                                'onset': onset,
+                                'dur': dur,
+                                'response': thisKey,
+                                'rt': dur,
+                                'remaining': examplesLeft
+                                }
 
-                                    expt_data.append(trial_data)
-
-
-                                    timer.reset()
-                                    timer1.reset()
-                                    changeFlag = True
-                                    break
-
-                                elif thisKey == key_mapping['right']:
-
-                                    #examplesLeft = 0
-
-                                    # Data
-                                    dur = exptTimer.getTime() - onset
-
-                                    trial_data = {
-                                    'trial_type': trial_type,
-                                    'trial_no': trial_no,
-                                    'problem': problem,
-                                    'onset': onset,
-                                    'dur': dur,
-                                    'response': False,
-                                    'rt': dur,
-                                    'remaining': examplesLeft
-                                    }
-
-                                    expt_data.append(trial_data)
+                                expt_data.append(trial_data)
 
 
-                                    problemFinished = True
-                                    changeFlag = True
-                                    break
+                                timer.reset()
+                                timer1.reset()
+                                changeFlag = True
+
+                                break
+
 
 
 
@@ -1029,7 +1050,7 @@ for prob_idx, v in probs.items():
             win.flip()
 
 
-        #event.clearEvents()
+        event.clearEvents()
 
         nKeys = len(allKeys)
 
