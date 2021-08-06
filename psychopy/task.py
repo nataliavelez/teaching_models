@@ -559,164 +559,174 @@ for prob_idx, v in probs.items():
             }
 
             expt_data.append(trial_data)
+            examplesLeft -= 1
+
+            # # Start of CONT block
+            # trial_type = 'cont'
+            # trial_no += 1
+            # problem = [prob_idx, prob_dict]
+            # onset = exptTimer.getTime()
 
 
-            # Start of CONT block
-            trial_type = 'cont'
-            trial_no += 1
-            problem = [prob_idx, prob_dict]
-            onset = exptTimer.getTime()
+            # # if examplesLeft == 1:
+            # #     break
+
+            # len_allKeys1 = 0
+            # timer1 = core.CountdownTimer(5)
 
 
-            # if examplesLeft == 1:
-            #     break
-
-            len_allKeys1 = 0
-            timer1 = core.CountdownTimer(5)
-
-
-            while True: # Move on and stay buttons
-
-
-
-                leftarrow.draw()
-                rightarrow.draw()
-                cont.draw()
-                yestext.draw()
-                notext.draw()
-                twokey.draw()
-                threekey.draw()
-                fourkey.draw()
+            # while True: # Move on and stay buttons
 
 
 
-                win.flip()
-
-                allKeys1 = event.getKeys()
-
-                if timer1.getTime() < 0:  # No response
-
-
-
-                    examplesLeft -= 1
-
-                    # Data
-
-                    dur = exptTimer.getTime() - onset
-
-                    trial_data = {
-                    'trial_type': trial_type,
-                    'trial_no': trial_no,
-                    'problem': problem,
-                    'onset': onset,
-                    'dur': dur,
-                    'response': None,
-                    'rt': None,
-                    'remaining': examplesLeft
-                    }
-
-                    expt_data.append(trial_data)
-
-                    # Other stuff
-                    event.clearEvents()
-
-                      # decrease by one example
-                    timer.reset()
-                    timer1.reset()
-                    changeFlag = True
-                    break
-
-
-                if len(allKeys1) > len_allKeys1:
-
-                    thisKey = allKeys1[-1]
-
-                    event.clearEvents()
-
-                    examplesLeft -= 1  # decrease by one example
-
-                    # Data
-                    dur = exptTimer.getTime() - onset
-
-                    trial_data = {
-                    'trial_type': trial_type,
-                    'trial_no': trial_no,
-                    'problem': problem,
-                    'onset': onset,
-                    'dur': dur,
-                    'response': thisKey,
-                    'rt': dur,
-                    'remaining': examplesLeft
-                    }
-
-                    expt_data.append(trial_data)
-
-
-                    timer.reset()
-                    timer1.reset()
-                    changeFlag = True
-
-                    break
-
-                    # if thisKey == key_mapping['space']:
-
-                    #     event.clearEvents()
-
-                    #     examplesLeft -= 1  # decrease by one example
-
-                    #     # Data
-                    #     dur = exptTimer.getTime() - onset
-
-                    #     trial_data = {
-                    #     'trial_type': trial_type,
-                    #     'trial_no': trial_no,
-                    #     'problem': problem,
-                    #     'onset': onset,
-                    #     'dur': dur,
-                    #     'response': True,
-                    #     'rt': dur,
-                    #     'remaining': examplesLeft
-                    #     }
-
-                    #     expt_data.append(trial_data)
-
-
-                    #     timer.reset()
-                    #     timer1.reset()
-                    #     changeFlag = True
-                    #     break
-
-                    # elif thisKey == key_mapping['right']:
-
-                    #     #examplesLeft = 0
-
-                    #     # Data
-                    #     dur = exptTimer.getTime() - onset
-
-                    #     trial_data = {
-                    #     'trial_type': trial_type,
-                    #     'trial_no': trial_no,
-                    #     'problem': problem,
-                    #     'onset': onset,
-                    #     'dur': dur,
-                    #     'response': False,
-                    #     'rt': dur,
-                    #     'remaining': examplesLeft
-                    #     }
-
-                    #     expt_data.append(trial_data)
-
-
-                    #     problemFinished = True
-                    #     changeFlag = True
-                    #     break
+            #     leftarrow.draw()
+            #     rightarrow.draw()
+            #     cont.draw()
+            #     yestext.draw()
+            #     notext.draw()
+            #     twokey.draw()
+            #     threekey.draw()
+            #     fourkey.draw()
 
 
 
-                len_allKeys1 = len(allKeys1)
-                event.clearEvents()
+            #     win.flip()
 
-            core.wait(0.5)
+            #     allKeys1 = event.getKeys()
+
+            #     if timer1.getTime() < 0:  # No response
+
+
+
+            #         examplesLeft -= 1
+
+            #         # Data
+
+            #         dur = exptTimer.getTime() - onset
+
+            #         trial_data = {
+            #         'trial_type': trial_type,
+            #         'trial_no': trial_no,
+            #         'problem': problem,
+            #         'onset': onset,
+            #         'dur': dur,
+            #         'response': None,
+            #         'rt': None,
+            #         'remaining': examplesLeft
+            #         }
+            #         print('None')
+
+            #         expt_data.append(trial_data)
+
+            #         # Other stuff
+            #         event.clearEvents()
+
+            #           # decrease by one example
+            #         timer.reset()
+            #         timer1.reset()
+            #         changeFlag = True
+            #         break
+
+
+            #     if len(allKeys1) > len_allKeys1:
+
+            #         thisKey = allKeys1[-1]
+
+            #         event.clearEvents()
+
+            #         examplesLeft -= 1  # decrease by one example
+
+            #         # Data
+            #         dur = exptTimer.getTime() - onset
+
+            #         trial_data = {
+            #         'trial_type': trial_type,
+            #         'trial_no': trial_no,
+            #         'problem': problem,
+            #         'onset': onset,
+            #         'dur': dur,
+            #         'response': thisKey,
+            #         'rt': dur,
+            #         'remaining': examplesLeft
+            #         }
+
+            #         expt_data.append(trial_data)
+
+            #         print(thisKey)
+            #         timer.reset()
+            #         timer1.reset()
+            #         changeFlag = True
+
+            #         break
+
+            #         # if thisKey == key_mapping['space']:
+
+            #         #     event.clearEvents()
+
+            #         #     examplesLeft -= 1  # decrease by one example
+
+            #         #     # Data
+            #         #     dur = exptTimer.getTime() - onset
+
+            #         #     trial_data = {
+            #         #     'trial_type': trial_type,
+            #         #     'trial_no': trial_no,
+            #         #     'problem': problem,
+            #         #     'onset': onset,
+            #         #     'dur': dur,
+            #         #     'response': True,
+            #         #     'rt': dur,
+            #         #     'remaining': examplesLeft
+            #         #     }
+
+            #         #     expt_data.append(trial_data)
+
+
+            #         #     timer.reset()
+            #         #     timer1.reset()
+            #         #     changeFlag = True
+            #         #     break
+
+            #         # elif thisKey == key_mapping['right']:
+
+            #         #     #examplesLeft = 0
+
+            #         #     # Data
+            #         #     dur = exptTimer.getTime() - onset
+
+            #         #     trial_data = {
+            #         #     'trial_type': trial_type,
+            #         #     'trial_no': trial_no,
+            #         #     'problem': problem,
+            #         #     'onset': onset,
+            #         #     'dur': dur,
+            #         #     'response': False,
+            #         #     'rt': dur,
+            #         #     'remaining': examplesLeft
+            #         #     }
+
+            #         #     expt_data.append(trial_data)
+
+
+            #         #     problemFinished = True
+            #         #     changeFlag = True
+            #         #     break
+
+
+
+                # len_allKeys1 = len(allKeys1)
+                # event.clearEvents()
+
+            win.flip(clearBuffer=True)
+
+            # ITI and fixation cross
+            iti.draw()
+            win.flip()
+            core.wait(random.uniform(5, 7))
+            timer.reset()
+            # timer1.reset()
+
+            #core.wait(0.5)
 
         if examplesLeft == 0:
                 break # This is a probably better way of doing it than incrementing examplesLeft and waiting for the loop to quit
@@ -928,7 +938,7 @@ for prob_idx, v in probs.items():
                                 }
 
                                 expt_data.append(trial_data)
-
+                                print('None')
                                 # Other stuff
                                 event.clearEvents()
 
@@ -963,7 +973,7 @@ for prob_idx, v in probs.items():
                                 }
 
                                 expt_data.append(trial_data)
-
+                                print(thisKey)
 
                                 timer.reset()
                                 timer1.reset()
