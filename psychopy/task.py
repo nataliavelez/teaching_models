@@ -568,8 +568,8 @@ for prob_idx, v in probs.items():
             onset = exptTimer.getTime()
 
 
-            if examplesLeft == 1:
-                break
+            # if examplesLeft == 1:
+            #     break
 
             len_allKeys1 = 0
             timer1 = core.CountdownTimer(5)
@@ -718,7 +718,7 @@ for prob_idx, v in probs.items():
 
             core.wait(0.5)
 
-        if problemFinished:
+        if examplesLeft == 0:
                 break # This is a probably better way of doing it than incrementing examplesLeft and waiting for the loop to quit
 
         #nKeys = 0
@@ -869,8 +869,8 @@ for prob_idx, v in probs.items():
 
                         core.wait(random.uniform(1, 3)) # ISI
 
-                        if examplesLeft == 1:
-                            break
+                        # if examplesLeft == 1:
+                        #     break
 
                         # Feedback screen
                         event.clearEvents()
@@ -936,6 +936,7 @@ for prob_idx, v in probs.items():
                                 timer.reset()
                                 timer1.reset()
                                 changeFlag = True
+
                                 break
 
 
@@ -967,6 +968,8 @@ for prob_idx, v in probs.items():
                                 timer.reset()
                                 timer1.reset()
                                 changeFlag = True
+                                event.clearEvents()
+
 
                                 break
 
@@ -974,7 +977,7 @@ for prob_idx, v in probs.items():
 
 
                             len_allKeys1 = len(allKeys1)
-                            event.clearEvents()
+                            #event.clearEvents()
 
                         win.flip(clearBuffer=True)
 
@@ -982,6 +985,8 @@ for prob_idx, v in probs.items():
                         iti.draw()
                         win.flip()
                         core.wait(random.uniform(5, 7))
+                        timer.reset()
+                        timer1.reset()
 
 
                     else:
@@ -997,7 +1002,7 @@ for prob_idx, v in probs.items():
             print(thisKey)
 
 
-            if problemFinished:
+            if examplesLeft == 0:
                 break
 
             if thisKey != key_mapping['space']:
