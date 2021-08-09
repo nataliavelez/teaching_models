@@ -118,7 +118,7 @@ run_idx = 2
 probs = prepared_probs[subj_id][run_idx]
 
 # %% Task
-data = [] # dete later
+data = [] # delete later
 expt_data = []
 
 key_mapping = {
@@ -152,7 +152,7 @@ iti.draw()
 win.flip()
 
 
-core.wait(10)
+core.wait(30)
 
 trial_no = -1
 event.clearEvents()
@@ -302,36 +302,6 @@ for prob_idx, v in probs.items():
 
 
 
-    # Move on and stay text boxes
-    # stay = visual.TextBox(window=win,
-    #                          text='Yes',
-    #                          font_size=30,
-    #                          #colorSpace='rgb255',
-    #                          opacity=1,
-    #                          font_color=[1, 1, 1],
-    #                          #background_color=[0, 0, 0],
-    #                          border_color=[1, 1, 1],
-    #                          border_stroke_width=4,
-    #                          textgrid_shape=[3,1],
-    #                          pos=(-.5, 0)
-    #                          )
-
-    # stay.setBackgroundColor([.122, .297, .486])  # Default starting key point
-
-    # move_on = visual.TextBox(window=win,
-    #                          text='No',
-    #                          font_size=30,
-    #                          opacity=1,
-    #                          #colorSpace='rgb255',
-    #                          font_color=[1, 1, 1],
-    #                          #background_color=[0, 0, 0],
-    #                          border_color=[1, 1, 1],
-    #                          border_stroke_width=4,
-    #                          textgrid_shape=[3,1],
-    #                          pos=(.5, 0)
-    #                          )
-
-    # buttons = [move_on, stay]
 
     # Text on top and underneath move on and stay text boxes
     cont = visual.TextStim(win=win,
@@ -342,10 +312,7 @@ for prob_idx, v in probs.items():
 
 
     # New continue screen text
-    # leftarrow = visual.TextStim(win=win, text='\u2190', pos=(-.5, 0),
-    #                             font="Menlo", height=.3)
-    # rightarrow = visual.TextStim(win=win, text='\u2192', pos=(.5, 0),
-    #                              font="Menlo", height=.3)
+
 
     leftarrow = visual.TextStim(win=win, text='1', pos=(-.66, 0),
                                 font="Menlo", height=.13)
@@ -560,162 +527,6 @@ for prob_idx, v in probs.items():
 
             expt_data.append(trial_data)
             examplesLeft -= 1
-
-            # # Start of CONT block
-            # trial_type = 'cont'
-            # trial_no += 1
-            # problem = [prob_idx, prob_dict]
-            # onset = exptTimer.getTime()
-
-
-            # # if examplesLeft == 1:
-            # #     break
-
-            # len_allKeys1 = 0
-            # timer1 = core.CountdownTimer(5)
-
-
-            # while True: # Move on and stay buttons
-
-
-
-            #     leftarrow.draw()
-            #     rightarrow.draw()
-            #     cont.draw()
-            #     yestext.draw()
-            #     notext.draw()
-            #     twokey.draw()
-            #     threekey.draw()
-            #     fourkey.draw()
-
-
-
-            #     win.flip()
-
-            #     allKeys1 = event.getKeys()
-
-            #     if timer1.getTime() < 0:  # No response
-
-
-
-            #         examplesLeft -= 1
-
-            #         # Data
-
-            #         dur = exptTimer.getTime() - onset
-
-            #         trial_data = {
-            #         'trial_type': trial_type,
-            #         'trial_no': trial_no,
-            #         'problem': problem,
-            #         'onset': onset,
-            #         'dur': dur,
-            #         'response': None,
-            #         'rt': None,
-            #         'remaining': examplesLeft
-            #         }
-            #         print('None')
-
-            #         expt_data.append(trial_data)
-
-            #         # Other stuff
-            #         event.clearEvents()
-
-            #           # decrease by one example
-            #         timer.reset()
-            #         timer1.reset()
-            #         changeFlag = True
-            #         break
-
-
-            #     if len(allKeys1) > len_allKeys1:
-
-            #         thisKey = allKeys1[-1]
-
-            #         event.clearEvents()
-
-            #         examplesLeft -= 1  # decrease by one example
-
-            #         # Data
-            #         dur = exptTimer.getTime() - onset
-
-            #         trial_data = {
-            #         'trial_type': trial_type,
-            #         'trial_no': trial_no,
-            #         'problem': problem,
-            #         'onset': onset,
-            #         'dur': dur,
-            #         'response': thisKey,
-            #         'rt': dur,
-            #         'remaining': examplesLeft
-            #         }
-
-            #         expt_data.append(trial_data)
-
-            #         print(thisKey)
-            #         timer.reset()
-            #         timer1.reset()
-            #         changeFlag = True
-
-            #         break
-
-            #         # if thisKey == key_mapping['space']:
-
-            #         #     event.clearEvents()
-
-            #         #     examplesLeft -= 1  # decrease by one example
-
-            #         #     # Data
-            #         #     dur = exptTimer.getTime() - onset
-
-            #         #     trial_data = {
-            #         #     'trial_type': trial_type,
-            #         #     'trial_no': trial_no,
-            #         #     'problem': problem,
-            #         #     'onset': onset,
-            #         #     'dur': dur,
-            #         #     'response': True,
-            #         #     'rt': dur,
-            #         #     'remaining': examplesLeft
-            #         #     }
-
-            #         #     expt_data.append(trial_data)
-
-
-            #         #     timer.reset()
-            #         #     timer1.reset()
-            #         #     changeFlag = True
-            #         #     break
-
-            #         # elif thisKey == key_mapping['right']:
-
-            #         #     #examplesLeft = 0
-
-            #         #     # Data
-            #         #     dur = exptTimer.getTime() - onset
-
-            #         #     trial_data = {
-            #         #     'trial_type': trial_type,
-            #         #     'trial_no': trial_no,
-            #         #     'problem': problem,
-            #         #     'onset': onset,
-            #         #     'dur': dur,
-            #         #     'response': False,
-            #         #     'rt': dur,
-            #         #     'remaining': examplesLeft
-            #         #     }
-
-            #         #     expt_data.append(trial_data)
-
-
-            #         #     problemFinished = True
-            #         #     changeFlag = True
-            #         #     break
-
-
-
-                # len_allKeys1 = len(allKeys1)
-                # event.clearEvents()
 
             win.flip(clearBuffer=True)
 
